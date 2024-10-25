@@ -13,3 +13,5 @@ fb100-Penn94-splits.npy
 deezer-europe-splits.npy
 
 arxiv-year-splits.npy
+
+They can also be downloaded from [Here](https://drive.google.com/file/d/1wCU40bgSm7XDXz_8o4ykxZEgK4swN_IR/view?usp=share_link)
