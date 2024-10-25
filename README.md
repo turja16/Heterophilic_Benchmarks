@@ -2,6 +2,7 @@
 ## Repository structure
 
 ```python
+|-- JacobiConv # experiments for JacobiConv from https://github.com/GraphPKU/JacobiConv
 |-- GPRGNN # experiments for GPRGNN from https://github.com/jianhao2016/GPRGNN
 |-- BernNet # experiments for BernNet from https://github.com/ivam-he/BernNet
 |-- FAGCN # experiments for FAGCN from https://github.com/bdy9527/FAGCN
