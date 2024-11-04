@@ -2,6 +2,8 @@
 ## Repository structure
 
 ```python
+|-- requirements.txt # environment
+|-- requirements_original_from_computecanada.txt # computecanada version
 |-- JacobiConv # experiments for JacobiConv from https://github.com/GraphPKU/JacobiConv
 |-- GPRGNN # experiments for GPRGNN from https://github.com/jianhao2016/GPRGNN
 |-- BernNet # experiments for BernNet from https://github.com/ivam-he/BernNet
