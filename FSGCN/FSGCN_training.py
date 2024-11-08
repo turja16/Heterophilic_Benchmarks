@@ -1,7 +1,8 @@
-import torch
-import torch.nn as nn
 # import torch.nn.functional as F
 from copy import deepcopy
+
+import torch
+
 # from sklearn.metrics import roc_auc_score
 
 # @torch.no_grad()
@@ -14,15 +15,16 @@ from copy import deepcopy
 
 __all__ = ['train_step', 'val_step']
 
+
 def train_step(
-    model,
-    optimizer,
-    labels,
-    list_mat,
-    mask,
-    loss_fn,
-    metric,
-    device: str = 'cpu'
+        model,
+        optimizer,
+        labels,
+        list_mat,
+        mask,
+        loss_fn,
+        metric,
+        device: str = 'cpu'
 ):
     model.train()
     optimizer.zero_grad()
@@ -33,14 +35,15 @@ def train_step(
     optimizer.step()
     return loss_train, acc_train
 
+
 def val_step(
-    model,
-    labels,
-    list_mat,
-    mask,
-    loss_fn,
-    metric,
-    device: str = 'cpu'
+        model,
+        labels,
+        list_mat,
+        mask,
+        loss_fn,
+        metric,
+        device: str = 'cpu'
 ):
     model.eval()
     with torch.no_grad():
@@ -49,19 +52,20 @@ def val_step(
         acc_val = metric(output[mask], labels[mask].to(device))
         return loss_val, acc_val
 
+
 def run_on_split(
-    model,
-    optimizer,
-    features, 
-    labels,
-    list_mat, 
-    train_mask, 
-    val_mask, 
-    test_mask,
-    device, 
-    args,
-    loss_fn, 
-    metric
+        model,
+        optimizer,
+        features,
+        labels,
+        list_mat,
+        train_mask,
+        val_mask,
+        test_mask,
+        device,
+        args,
+        loss_fn,
+        metric
 ):
     # metric = accuracy # if len(torch.unique(labels)) > 2 else roc_auc
     best = -torch.inf
