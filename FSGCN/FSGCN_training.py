@@ -1,13 +1,13 @@
-# import torch.nn.functional as F
+import torch.nn.functional as F
 from copy import deepcopy
 
 import torch
 
 # from sklearn.metrics import roc_auc_score
 
-# @torch.no_grad()
-# def accuracy(pr_logits, gt_labels):
-#     return (pr_logits.argmax(dim=-1) == gt_labels).float().mean().item()
+@torch.no_grad()
+def accuracy(pr_logits, gt_labels):
+    return (pr_logits.argmax(dim=-1) == gt_labels).float().mean().item()
 
 # @torch.no_grad()
 # def roc_auc(pr_logits, gt_labels):
@@ -64,8 +64,8 @@ def run_on_split(
         test_mask,
         device,
         args,
-        loss_fn,
-        metric
+        loss_fn=F.cross_entropy,
+        metric=accuracy
 ):
     # metric = accuracy # if len(torch.unique(labels)) > 2 else roc_auc
     best = -torch.inf
