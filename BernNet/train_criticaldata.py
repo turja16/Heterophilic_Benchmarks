@@ -100,7 +100,7 @@ def train(model,
     return metric_test.item()
 
 
-def train_crticaldata(device: torch.device,
+def train_criticaldata(device: torch.device,
                       args: Union[NamedTuple, argparse.Namespace]):
     dataset_str = f'{args.dataset.replace("-", "_")}'
     # load critical data
@@ -198,4 +198,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     device = torch.device("cuda:" + str(args.cuda))
-    train_crticaldata(device, args)
+    train_criticaldata(device, args)
