@@ -16,7 +16,7 @@ from utils.statistic import *
 MODEL_CLASSES = {'GraphSage': sage.GraphSage}
 
 
-def train_crticaldata_gbkgnn(device: torch.device,
+def train_criticaldata_gbkgnn(device: torch.device,
                              args: Union[NamedTuple, argparse.Namespace]):
     name = f'{args.name.replace("-", "_")}'
     experiment_ans = ddt(lambda: [])
@@ -109,4 +109,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     device = torch.device("cuda:" + str(args.cuda))
 
-    train_crticaldata_gbkgnn(device, args)
+    train_criticaldata_gbkgnn(device, args)
