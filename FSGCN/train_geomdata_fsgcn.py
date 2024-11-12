@@ -83,7 +83,7 @@ def random_splits(labels, ratio: list = [60, 20, 20], seed: int = 1234567):
     return (train_index, val_index, test_index)
 
 
-def train_geodata_fsgcn(device: torch.device,
+def train_geomdata_fsgcn(device: torch.device,
                         args: Union[NamedTuple, argparse.Namespace]):
     # large scale + geom
     if args.dataset in ['deezer-europe', 'genius', 'penn94', 'arxiv-year', 'pokec', 'snap-patents', 'twitch-gamers',
@@ -200,4 +200,4 @@ if __name__ == "__main__":
 
     device = torch.device("cuda:" + str(args.cuda))
 
-    train_geodata_fsgcn(device, args)
+    train_geomdata_fsgcn(device, args)
