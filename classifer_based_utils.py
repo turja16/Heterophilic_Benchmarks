@@ -102,12 +102,12 @@ def classifier_based_performance_metric(features, adj, labels, sample_max, base_
     for j in range(epochs):
         if nnodes <= sample_max:
             sample = np.arange(nnodes)
-            label_onehot = torch.eye(labels.max() + 1)[labels].cpu()
-            labels_sample = labels.cpu()
+            label_onehot = torch.eye(labels.max() + 1, device=device)[labels].cpu()
+            labels_sample = labels
         else:
             sample, _, _ = random_disassortative_splits(labels, labels.max() + 1, sample_max / nnodes)
-            label_onehot = torch.eye(labels.max() + 1)[labels][sample, :].cpu()
-            labels_sample = labels.cpu()[sample]
+            label_onehot = torch.eye(labels.max() + 1, device=device)[labels][sample, :].cpu()
+            labels_sample = labels[sample]
         idx_train, idx_val, idx_test = random_disassortative_splits(labels_sample, labels_sample.max() + 1)
         idx_val = idx_val + idx_test
         # Kernel Regression based p-values
@@ -117,10 +117,10 @@ def classifier_based_performance_metric(features, adj, labels, sample_max, base_
             K_graph_train_train, K_train_train = K_graph[idx_train, :][:, idx_train], K[idx_train, :][:, idx_train]
             K_graph_val_train, K_val_train = K_graph[idx_val, :][:, idx_train], K[idx_val, :][:, idx_train]
             Kreg_G, Kreg_X = K_graph_val_train.cpu() @ (
-                    torch.tensor(np.linalg.pinv(K_graph_train_train.cpu().numpy())) @ label_onehot.cpu()[
-                idx_train]), K_val_train.cpu() @ (
+                    torch.tensor(np.linalg.pinv(K_graph_train_train.cpu().numpy())) @ label_onehot[
+                idx_train.to(label_onehot.device)]), K_val_train.cpu() @ (
                                      torch.tensor(np.linalg.pinv(K_train_train.cpu().numpy())) @ label_onehot.cpu()[
-                                 idx_train])
+                                 idx_train.to(label_onehot.device)])
             diff_results[j] = (accuracy(labels_sample[idx_val], Kreg_G) > accuracy(labels_sample[idx_val], Kreg_X))
             G_results[j] = accuracy(labels_sample[idx_val], Kreg_G)
             X_results[j] = accuracy(labels_sample[idx_val], Kreg_X)
@@ -130,16 +130,17 @@ def classifier_based_performance_metric(features, adj, labels, sample_max, base_
             X_agg = torch.spmm(adj, features)[sample].cpu()
 
             X_gnb, G_gnb = GaussianNB(), GaussianNB()
-            X_gnb.fit(X[idx_train], labels_sample[idx_train])
-            G_gnb.fit(X_agg[idx_train], labels_sample[idx_train])
+            X_gnb.fit(X[idx_train.cpu()], labels_sample[idx_train].cpu().numpy())
+            G_gnb.fit(X_agg[idx_train.cpu()], labels_sample[idx_train].cpu().numpy())
 
-            X_pred = torch.tensor(X_gnb.predict(X[idx_val]))
-            G_pred = torch.tensor(G_gnb.predict(X_agg[idx_val]))
+            X_pred = torch.tensor(X_gnb.predict(X[idx_val.cpu()]))
+            G_pred = torch.tensor(G_gnb.predict(X_agg[idx_val.cpu()]))
 
-            diff_results[j] = (torch.mean(G_pred.eq(labels_sample[idx_val]).float()) > torch.mean(
-                X_pred.eq(labels_sample[idx_val]).float()))
-            G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val]).float())
-            X_results[j] = torch.mean(X_pred.eq(labels_sample[idx_val]).float())
+            diff_results[j] = (torch.mean(G_pred.eq(labels_sample[idx_val].cpu()).float()) > torch.mean(
+                X_pred.eq(labels_sample[idx_val].cpu()).float()))
+            # G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val]).float())
+            G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val].to(G_pred.device)).float())
+            X_results[j] = torch.mean(X_pred.eq(labels_sample[idx_val].to(G_pred.device)).float())
         else:
             #  SVM based p-values
             X = features[sample].cpu()

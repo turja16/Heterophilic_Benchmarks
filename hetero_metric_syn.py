@@ -1,4 +1,6 @@
 import argparse
+import os
+
 from itertools import combinations
 from typing import NamedTuple, Union
 
@@ -357,6 +359,7 @@ def compute_metrics_on_syn_graph(device: torch.device,
            'gnb_sym': gnb_norm_sym
            }
 
+    os.makedirs('./stat', exist_ok=True) 
     torch.save(res, './stat/{}.pt'.format(name))
     return res
 
