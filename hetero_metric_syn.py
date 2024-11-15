@@ -2,6 +2,8 @@ import argparse
 from itertools import combinations
 from typing import NamedTuple, Union
 
+from torch_geometric.utils import to_dense_adj
+
 from classifer_based_utils import *
 
 
@@ -37,7 +39,7 @@ def normalize_tensor(mx, symmetric=0):
 
 
 # x = dataset.node_features.cpu().numpy()
-def agg_h(adj_hat, z, label):
+def agg_h(adj_hat, z, label, nnodes):
     agg = adj_hat @ z
     post_agg = agg @ agg.T
     s_agg = 0
@@ -172,9 +174,9 @@ def compute_metrics_on_syn_graph(device: torch.device,
     #############
 
     # h agg mean
-    h_m_agg = agg_h(adj_hat, z, label)
-    h_m_agg_norm_rw = agg_h(adj_hat_norm_rw.cpu().numpy(), z, label)
-    h_m_agg_norm_sym = agg_h(adj_hat_norm_sym.cpu().numpy(), z, label)
+    h_m_agg = agg_h(adj_hat, z, label, nnodes)
+    h_m_agg_norm_rw = agg_h(adj_hat_norm_rw.cpu().numpy(), z, label, nnodes)
+    h_m_agg_norm_sym = agg_h(adj_hat_norm_sym.cpu().numpy(), z, label, nnodes)
 
     # adjusted H edge
     h_adj_c = 0
