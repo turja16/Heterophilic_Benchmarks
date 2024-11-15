@@ -27,6 +27,8 @@
 |-- models # baseline models for MLP-1, MLP-2, SGC-1, and GCN
 |-- utils # training functions for baseline models
 |-- critial_look_baseline # training baseline models on datasets from https://arxiv.org/pdf/2302.11640
+|-- empirical-study-of-GNNs # GenCAT from https://github.com/seijimaekawa/empirical-study-of-GNNs
+    |-- scripts/run_gencat_hetero_homo.py # gencat generation for different homophily levels (modified based on scripts/run_gencat.py)
 
 generate_mixhop_data.py # generate synthetic graphs using Preferential Attachment (PA)
 train_syn_baseline.py # training baseline models on the synthetic graphs generated using PA

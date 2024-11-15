@@ -1,8 +1,9 @@
-Download the repository from [GenCAT](https://github.com/seijimaekawa/empirical-study-of-GNNs)
-
 # Dataset Generation using GenCAT 
-To generate synthetic graphs based on Cora, run the following command:
+This is based on the repository from [GenCAT](https://github.com/seijimaekawa/empirical-study-of-GNNs)
+
+To generate synthetic graphs based on Cora, under the ``empirical-study-of-GNNs" folder, run the following command:
 '''
-python scripts/run_gencat.py --dataset cora --exp hetero_homo
+python scripts/run_gencat_hetero_homo.py --dataset cora
 '''
-Put the generated datasets in this folder for later use. 
+For each homophily levels, 10 datasets are generated.
+Datasets are placed in this folder.
