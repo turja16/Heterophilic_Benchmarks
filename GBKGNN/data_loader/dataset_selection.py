@@ -6,7 +6,7 @@ from torch_geometric.data import Data
 # from torch_geometric.datasets import Actor, WikipediaNetwork, WebKB
 
 # from utils.transform import zero_in_degree_removal
-from utils.statistic import compute_smoothness #, split_dataset
+from GBKGNN.utils.statistic import compute_smoothness #, split_dataset
 
 import sys
 sys.path.append("/home/xsslnc/scratch/hetero_metric_win_ver")

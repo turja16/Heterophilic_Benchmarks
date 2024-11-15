@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from data_loader.dataset_selection import DatasetSelection
+from GBKGNN.data_loader.dataset_selection import DatasetSelection
 
 class DataLoader(DataLoader):
 

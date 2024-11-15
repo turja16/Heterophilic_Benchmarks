@@ -1,4 +1,4 @@
-from utils.metric import accuracy, roc_auc, compute_correct_num, compute_sigma_acc
+from GBKGNN.utils.metric import accuracy, roc_auc, compute_correct_num, compute_sigma_acc
 import torch
 from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
