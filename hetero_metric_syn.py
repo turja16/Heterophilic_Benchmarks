@@ -358,6 +358,7 @@ def compute_metrics_on_syn_graph(device: torch.device,
            }
 
     torch.save(res, './stat/{}.pt'.format(name))
+    return res
 
 
 if __name__ == "__main__":
