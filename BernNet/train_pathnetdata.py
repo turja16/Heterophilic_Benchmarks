@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.utils import remove_self_loops
 
-from models import BernNet
+from BernNet.models import BernNet
 
 
 def normalize_tensor_sparse(mx, symmetric=0):

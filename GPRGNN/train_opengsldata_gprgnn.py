@@ -12,8 +12,8 @@ from torch_geometric.datasets import AttributedGraphDataset
 from torch_geometric.utils import remove_self_loops
 from torch_geometric.utils.convert import to_scipy_sparse_matrix
 
-from GPRGNN_models import GPRGNN
-from GPRGNN_training import RunExp
+from GPRGNN.GPRGNN_models import GPRGNN
+from GPRGNN.GPRGNN_training import RunExp
 
 BASE_DIR = '../Opengsl'
 

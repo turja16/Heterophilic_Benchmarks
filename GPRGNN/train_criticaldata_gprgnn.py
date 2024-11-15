@@ -7,8 +7,8 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
-from GPRGNN_models import GPRGNN
-from GPRGNN_training import RunExp
+from GPRGNN.GPRGNN_models import GPRGNN
+from GPRGNN.GPRGNN_training import RunExp
 
 
 @torch.no_grad()

@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
-from models import BernNet
+from BernNet.models import BernNet
 
 
 def normalize_tensor_sparse(mx, symmetric=0):

@@ -10,8 +10,8 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
-from FAGCN_models import FAGCN
-from FAGCN_training import train
+from FAGCN.FAGCN_models import FAGCN
+from FAGCN.FAGCN_training import train
 
 sys.path.append("/home/xsslnc/scratch/hetero_metric_win_ver")
 from large_scale_data_utils.dataset import load_nc_dataset

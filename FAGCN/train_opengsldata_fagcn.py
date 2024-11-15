@@ -11,8 +11,8 @@ import torch.nn.functional as F
 from torch_geometric.datasets import AttributedGraphDataset
 from torch_geometric.utils import remove_self_loops
 
-from FAGCN_models import FAGCN
-from FAGCN_training import train
+from FAGCN.FAGCN_models import FAGCN
+from FAGCN.FAGCN_training import train
 
 BASE_DIR = '../Opengsl'
 

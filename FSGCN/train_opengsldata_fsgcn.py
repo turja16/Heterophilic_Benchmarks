@@ -10,8 +10,8 @@ from torch_geometric.datasets import AttributedGraphDataset
 from torch_geometric.utils import add_self_loops
 from torch_geometric.utils import to_dense_adj, remove_self_loops
 
-from FSGCN_models import FSGNN
-from FSGCN_training import run_on_split
+from FSGCN.FSGCN_models import FSGNN
+from FSGCN.FSGCN_training import run_on_split
 
 # load opengsl data
 BASE_DIR = '../Opengsl'

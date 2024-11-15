@@ -8,8 +8,8 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
-from FAGCN_models import FAGCN
-from FAGCN_training import train
+from FAGCN.FAGCN_models import FAGCN
+from FAGCN.FAGCN_training import train
 
 
 @torch.no_grad()

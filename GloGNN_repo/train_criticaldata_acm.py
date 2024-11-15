@@ -10,6 +10,9 @@ import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 from torch_geometric.utils.convert import to_scipy_sparse_matrix
 
+import sys
+sys.path.append("./Heterophilic_Benchmarks/GloGNN_repo/")
+
 from acm import GCN
 from parse import parser_add_main_args
 

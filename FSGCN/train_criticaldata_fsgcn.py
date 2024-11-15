@@ -7,8 +7,8 @@ import torch
 from torch_geometric.utils import add_self_loops
 from torch_geometric.utils.convert import to_scipy_sparse_matrix
 
-from FSGCN_models import FSGNN
-from FSGCN_training import run_on_split
+from FSGCN.FSGCN_models import FSGNN
+from FSGCN.FSGCN_training import run_on_split
 
 
 # only for accuracy

@@ -9,8 +9,8 @@ import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 from torch_geometric.utils import remove_self_loops
 
-from GPRGNN_models import GPRGNN
-from GPRGNN_training import RunExp
+from GPRGNN.GPRGNN_models import GPRGNN
+from GPRGNN.GPRGNN_training import RunExp
 
 BASE_DIR = "../PathNet/other_data"
 

@@ -4,11 +4,11 @@ from typing import NamedTuple, Union
 
 from torch_geometric.utils import add_remaining_self_loops
 
-from GBKGNN_training import *
-from data_loader import data_loaders
+from GBKGNN.GBKGNN_training import *
+from GBKGNN.data_loader import data_loaders
 # from models import dnn, gat, gcn, gin, sage, gcn2
-from models import sage
-from utils.statistic import *
+from GBKGNN.models import sage
+from GBKGNN.utils.statistic import *
 
 
 # MODEL_CLASSES = {'DNN': dnn.DNN, 'GraphSage': sage.GraphSage,

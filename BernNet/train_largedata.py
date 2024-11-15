@@ -10,7 +10,7 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
-from models import BernNet
+from BernNet.models import BernNet
 
 sys.path.append("/home/xsslnc/scratch/hetero_metric_win_ver")
 from large_scale_data_utils.dataset import load_nc_dataset
