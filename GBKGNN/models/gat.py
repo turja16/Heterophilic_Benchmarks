@@ -1,18 +1,18 @@
-import torch
-import torch.nn.functional as F
-from torch_geometric.nn import GATConv
+import math
 from typing import Union, Tuple, Optional
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch import Tensor
+from torch.nn import Parameter, Linear
+from torch_geometric.nn import GATConv
 from torch_geometric.typing import (OptPairTensor, Adj, Size, NoneType,
                                     OptTensor)
-import math
-import torch.nn as nn
-from torch import Tensor
-import torch.nn.functional as F
-from torch.nn import Parameter, Linear
-from torch_sparse import SparseTensor, set_diag
-from torch_geometric.nn.conv import MessagePassing
-from .message_passing import MessagePassingNew
 from torch_geometric.utils import remove_self_loops, add_self_loops, softmax
+from torch_sparse import SparseTensor, set_diag
+
+from GBKGNN.models.message_passing import MessagePassingNew
 
 
 class GAT(torch.nn.Module):
@@ -205,7 +205,8 @@ class GATConvNew(MessagePassingNew):
         sigma = F.leaky_relu(sigma, self.negative_slope)
         sigmoid = nn.Sigmoid()
         sigma = sigmoid(sigma)
-        return x_j * alpha.unsqueeze(-1) * sigma.clone().view(-1, 1) + x_i * alpha.unsqueeze(-1) * (1 - sigma.clone().view(-1, 1)), sigma
+        return x_j * alpha.unsqueeze(-1) * sigma.clone().view(-1, 1) + x_i * alpha.unsqueeze(-1) * (
+                    1 - sigma.clone().view(-1, 1)), sigma
 
     def __repr__(self):
         return '{}({}, {}, heads={})'.format(self.__class__.__name__,

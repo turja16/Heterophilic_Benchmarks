@@ -4,7 +4,7 @@ from torch.nn import Linear
 
 # from torch_geometric.nn import GATConv, GCNConv, ChebConv
 # from torch_geometric.nn import MessagePassing, APPNP
-from Bernpro import Bern_prop
+from BernNet.Bernpro import Bern_prop
 
 
 class BernNet(torch.nn.Module):
