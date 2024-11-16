@@ -8,6 +8,8 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
+import sys
+sys.path.append("./Heterophilic_Benchmarks/")
 from BernNet.models import BernNet
 
 
