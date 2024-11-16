@@ -1,23 +1,14 @@
 import torch
-import random
-import math
 import torch.nn.functional as F
-import os.path as osp
-import numpy as np
-import torch_geometric.transforms as T
-from torch_geometric.nn.conv.gcn_conv import gcn_norm
-from torch.autograd import Variable
-from torch.nn import Parameter
 from torch.nn import Linear
+
 # from torch_geometric.nn import GATConv, GCNConv, ChebConv
 # from torch_geometric.nn import MessagePassing, APPNP
-from torch_geometric.utils import to_scipy_sparse_matrix
-import scipy.sparse as sp
-from scipy.special import comb
 from Bernpro import Bern_prop
 
+
 class BernNet(torch.nn.Module):
-    #def __init__(self, dataset, args):
+    # def __init__(self, dataset, args):
     def __init__(self, in_dim, n_hid, n_classes, args):
         super(BernNet, self).__init__()
         # self.lin1 = Linear(dataset.num_features, args.hidden)

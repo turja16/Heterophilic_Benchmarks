@@ -1,13 +1,13 @@
-
 # https://github.com/RecklessRonan/GloGNN/blob/master/large-scale/models.py
 # H2GCN, LINKX, APPNP
+import scipy.sparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import scipy.sparse
-from torch_sparse import SparseTensor, matmul
 from torch_geometric.nn import JumpingKnowledge, APPNP
 from torch_geometric.nn.conv.gcn_conv import gcn_norm
+from torch_sparse import SparseTensor, matmul
+
 
 class MLP(nn.Module):
     """ adapted from https://github.com/CUAI/CorrectAndSmooth/blob/master/gen_models.py """
@@ -55,13 +55,14 @@ class LINKX(nn.Module):
         a = MLP_1(A), x = MLP_2(X), MLP_3(sigma(W_1[a, x] + a + x))
     """
 
-    def __init__(self, in_channels, hidden_channels, out_channels, num_layers, num_nodes, dropout=.5, cache=False, inner_activation=False, inner_dropout=False, init_layers_A=1, init_layers_X=1):
+    def __init__(self, in_channels, hidden_channels, out_channels, num_layers, num_nodes, dropout=.5, cache=False,
+                 inner_activation=False, inner_dropout=False, init_layers_A=1, init_layers_X=1):
         super(LINKX, self).__init__()
         self.mlpA = MLP(num_nodes, hidden_channels,
                         hidden_channels, init_layers_A, dropout=0)
         self.mlpX = MLP(in_channels, hidden_channels,
                         hidden_channels, init_layers_X, dropout=0)
-        self.W = nn.Linear(2*hidden_channels, hidden_channels)
+        self.W = nn.Linear(2 * hidden_channels, hidden_channels)
         self.mlp_final = MLP(hidden_channels, hidden_channels,
                              out_channels, num_layers, dropout=dropout)
         self.in_channels = in_channels
@@ -80,7 +81,7 @@ class LINKX(nn.Module):
         m = data.graph['num_nodes']
         feat_dim = data.graph['node_feat']
         row, col = data.graph['edge_index']
-        row = row-row.min()
+        row = row - row.min()
         A = SparseTensor(row=row, col=col,
                          sparse_sizes=(m, self.num_nodes)
                          ).to_torch_sparse_coo_tensor()
@@ -96,7 +97,6 @@ class LINKX(nn.Module):
         x = F.relu(x + xA + xX)
         x = self.mlp_final(x, input_tensor=True)
         return x
-
 
 
 class H2GCNConv(nn.Module):
@@ -129,13 +129,13 @@ class H2GCN(nn.Module):
         self.convs.append(H2GCNConv())
 
         self.bns = nn.ModuleList()
-        self.bns.append(nn.BatchNorm1d(hidden_channels*2*len(self.convs)))
+        self.bns.append(nn.BatchNorm1d(hidden_channels * 2 * len(self.convs)))
 
         for l in range(num_layers - 1):
             self.convs.append(H2GCNConv())
-            if l != num_layers-2:
+            if l != num_layers - 2:
                 self.bns.append(nn.BatchNorm1d(
-                    hidden_channels*2*len(self.convs)))
+                    hidden_channels * 2 * len(self.convs)))
 
         self.dropout = dropout
         self.activation = F.relu
@@ -143,7 +143,7 @@ class H2GCN(nn.Module):
         self.conv_dropout = conv_dropout  # dropout neighborhood aggregation steps
 
         self.jump = JumpingKnowledge('cat')
-        last_dim = hidden_channels*(2**(num_layers+1)-1)
+        last_dim = hidden_channels * (2 ** (num_layers + 1) - 1)
         self.final_project = nn.Linear(last_dim, out_channels)
 
         self.num_nodes = num_nodes
@@ -220,6 +220,7 @@ class H2GCN(nn.Module):
             x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.final_project(x)
         return x
+
 
 class APPNP_Net(nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, dprate=.0, dropout=.5, K=10, alpha=.1, num_layers=3):

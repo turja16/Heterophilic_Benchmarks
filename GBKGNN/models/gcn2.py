@@ -1,21 +1,16 @@
+import math
+from typing import Optional, Tuple
+
 import torch
-from torch.nn import Linear, Sigmoid
 import torch.nn.functional as F
-import torch_geometric.transforms as T
+from models.message_passing import MessagePassingNew
+from torch import Tensor
+from torch.nn import Linear, Sigmoid
+from torch.nn import Parameter
 from torch_geometric.nn import GCN2Conv
 from torch_geometric.nn.conv.gcn_conv import gcn_norm
-from typing import Optional, Tuple
 from torch_geometric.typing import Adj, OptTensor
-
-import math
-import torch
-from torch import Tensor
-from torch.nn import Parameter
 from torch_sparse import SparseTensor, matmul
-from torch_geometric.nn.conv import MessagePassing
-from torch_geometric.nn.conv.gcn_conv import gcn_norm
-
-from models.message_passing import MessagePassingNew
 
 
 class GCN2(torch.nn.Module):
@@ -72,7 +67,6 @@ class GCN2(torch.nn.Module):
 
 
 class GCN2ConvNew(MessagePassingNew):
-
     _cached_edge_index: Optional[Tuple[Tensor, Tensor]]
     _cached_adj_t: Optional[SparseTensor]
 
@@ -193,7 +187,8 @@ class GCN2ConvNew(MessagePassingNew):
         sigmoid = Sigmoid()
         sigma = sigmoid(sigma)
 
-        return edge_weight.view(-1, 1) * x_j * sigma.clone().view(-1, 1) + edge_weight.view(-1, 1) * x_i * (1 - sigma.clone().view(-1, 1)), sigma
+        return edge_weight.view(-1, 1) * x_j * sigma.clone().view(-1, 1) + edge_weight.view(-1, 1) * x_i * (
+                    1 - sigma.clone().view(-1, 1)), sigma
 
     def message_and_aggregate(self, adj_t: SparseTensor, x: Tensor) -> Tensor:
         return matmul(adj_t, x, reduce=self.aggr)
