@@ -53,7 +53,7 @@ def train_criticaldata_gbkgnn(device: torch.device,
         #
         n = dataset["num_node"]
         c = dataset['num_classes']
-        args.similarity = compute_cosine_similarity(
+        similarity = compute_cosine_similarity(
             dataset, edge_index, "label")
         # split
         dataset["graph"][0].train_mask = train_mask[split_id]
@@ -63,14 +63,13 @@ def train_criticaldata_gbkgnn(device: torch.device,
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         # training
-        test_acc = training(args, dataset, device, model, optimizer)
+        test_acc = training(args, dataset, device, model, optimizer, similarity, split_id)
         acc_list.append(test_acc)
 
     test_mean = np.mean(acc_list)
     test_std = np.std(acc_list)
     filename = f'./critical.csv'
     print(f"Saving results to {filename}")
-    args.similarity = None
     with open(f"{filename}", 'a+') as write_obj:
         write_obj.write(f"{args.method.lower()}, " +
                         f"{name}, " +

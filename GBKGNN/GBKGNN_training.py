@@ -6,10 +6,10 @@ from GBKGNN.utils.metric import accuracy, roc_auc, compute_sigma_acc
 
 
 # not for nclass=2
-def train(args, dataset, device, model, optimizer):
+def train(args, dataset, device, model, optimizer, similarity, split_id):
     model.train()
     if len(dataset['graph'][0].train_mask.shape) != 1:
-        train_mask = dataset['graph'][0].train_mask[:, args.split_id]
+        train_mask = dataset['graph'][0].train_mask[:, split_id]
     else:
         train_mask = dataset['graph'][0].train_mask
     #
@@ -40,7 +40,7 @@ def train(args, dataset, device, model, optimizer):
             sigma = torch.cat(
                 (sigma_.unsqueeze(1), sigma.unsqueeze(1)), 1)
             regularizer = loss_function(
-                sigma.cuda(), torch.tensor(args.similarity, dtype=torch.long).cuda()[edge_train_mask])
+                sigma.cuda(), torch.tensor(similarity, dtype=torch.long).cuda()[edge_train_mask])
             regularizer_list.append(regularizer)
             # training loss
         loss += F.nll_loss(
@@ -64,7 +64,7 @@ def train(args, dataset, device, model, optimizer):
     return loss, metric_train
 
 
-def test(args, dataset, device, model, mask_type="test"):
+def test(args, dataset, device, model, similarity, split_id, mask_type="test"):
     model.eval()
     #
     # choose metric
@@ -75,12 +75,12 @@ def test(args, dataset, device, model, mask_type="test"):
     #
     if mask_type == "test":
         if len(dataset['graph'][0].test_mask.shape) != 1:  # multiple splits
-            mask = dataset['graph'][0].test_mask[:, args.split_id]
+            mask = dataset['graph'][0].test_mask[:, split_id]
         else:
             mask = dataset['graph'][0].test_mask
     if mask_type == "val":
         if len(dataset['graph'][0].val_mask.shape) != 1:  # multiple splits
-            mask = dataset['graph'][0].val_mask[:, args.split_id]
+            mask = dataset['graph'][0].val_mask[:, split_id]
         else:
             mask = dataset['graph'][0].val_mask
     #
@@ -91,7 +91,7 @@ def test(args, dataset, device, model, mask_type="test"):
         # out, _ = model(data)[0].max(dim=1)
         out, _ = model(data)
         sigma0 = model(data)[1][0].tolist()
-        sigma_acc = compute_sigma_acc(sigma0, args.similarity)
+        sigma_acc = compute_sigma_acc(sigma0, similarity)
         # print('Sigma Accuracy: {:.4f}'.format(sigma_acc))
     else:
         out = model(data)
@@ -103,13 +103,13 @@ def test(args, dataset, device, model, mask_type="test"):
 
 
 #
-def training(args, dataset, device, model, optimizer):
+def training(args, dataset, device, model, optimizer, similarity, split_id):
     best_val_acc = test_acc = 0
     counter: int = args.patience
     for epoch in range(args.epoch_num):
-        loss, train_acc = train(args, dataset, device, model, optimizer)
-        val_acc = test(args, dataset, model, device, mask_type="val")
-        tmp_test_acc = test(args, dataset, device, model, mask_type="test")
+        loss, train_acc = train(args, dataset, device, model, optimizer, similarity, split_id)
+        val_acc = test(args, dataset, model, device, similarity, split_id, mask_type="val")
+        tmp_test_acc = test(args, dataset, device, model, similarity, split_id, mask_type="test")
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             test_acc = tmp_test_acc

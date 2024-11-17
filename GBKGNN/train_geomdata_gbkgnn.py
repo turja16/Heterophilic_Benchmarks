@@ -49,7 +49,7 @@ def train_geomdata_gbkgnn(device: torch.device,
         n = dataset["num_node"]
         c = dataset['num_classes']
         # split
-        args.similarity = compute_cosine_similarity(
+        similarity = compute_cosine_similarity(
             dataset, edge_index, "label")
         train_index, val_index, test_index = random_splits(
             dataset["graph"][0].y, ratio=[60, 20, 20], seed=split_seed)
@@ -63,15 +63,13 @@ def train_geomdata_gbkgnn(device: torch.device,
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         # training
-        test_acc = training(args, dataset, device, model, optimizer)
+        test_acc = training(args, dataset, device, model, optimizer, similarity, split_id)
         acc_list.append(test_acc)
 
     test_mean = np.mean(acc_list)
     test_std = np.std(acc_list)
     filename = f'./geom.csv'
     print(f"Saving results to {filename}")
-    # delete something before saving
-    args.similarity = None
     with open(f"{filename}", 'a+') as write_obj:
         write_obj.write(f"{args.method.lower()}, " +
                         f"{name}, " +
