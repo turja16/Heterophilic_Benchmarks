@@ -19,12 +19,10 @@ MODEL_CLASSES = {'GraphSage': sage.GraphSage}
 
 def train_geomdata_gbkgnn(device: torch.device,
                           args: Union[NamedTuple, argparse.Namespace]):
-    name = f'{args.name.replace("-", "_")}'
     experiment_ans = ddt(lambda: [])
-    args.dataset_name = name
+    args.dataset_name =  f'{args.name.replace("-", "_")}'
     model_name = args.model_type
     args.dim_size = args.n_hid
-    args.aug = True  # use gbkgnn message passing method
 
     acc_list = []
     torch.manual_seed(0)
@@ -33,7 +31,7 @@ def train_geomdata_gbkgnn(device: torch.device,
         print('{}/{}'.format(split_id, args.run))
         args.dataset = data_loaders.DataLoader(args).dataset
         experiment_ans = ddt(lambda: [])
-        experiment_ans["datasetName"].append(name)
+        experiment_ans["datasetName"].append(args.dataset_name)
         experiment_ans["nodeNum"].append(args.dataset["num_node"])
         experiment_ans["edgeNum"].append(args.dataset["num_edge"])
         experiment_ans["nodeFeaturesDim"].append(
@@ -77,7 +75,7 @@ def train_geomdata_gbkgnn(device: torch.device,
     args.similarity = None
     with open(f"{filename}", 'a+') as write_obj:
         write_obj.write(f"{args.method.lower()}, " +
-                        f"{args.name}, " +
+                        f"{args.dataset_name}, " +
                         f"{test_mean:.4f}, " +
                         f"{test_std:.4f}, " +
                         f"{args}\n")
@@ -85,13 +83,13 @@ def train_geomdata_gbkgnn(device: torch.device,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test graph dataset used in PathNet")
-    parser.add_argument('--name', type=str, default='squirrel', help='dataset name')
+    parser.add_argument('--dateset_name', type=str, default='squirrel', help='dataset name')
     # model training parameters
     parser.add_argument('--cuda', type=int, default=0, help='Avaiable GPU ID')
     parser.add_argument('--method', type=str, default='GBKGCN', help='which model to use')
     parser.add_argument('--run', type=int, default=10, help='number of graph per homophily level')
     parser.add_argument('--epoch_num', type=int, default=1000, help='Number of Epoch')
-    parser.add_argument('--n_hid', type=int, default=64, help='Number of hidden dim')
+    parser.add_argument('--dim_size', type=int, default=64, help='Number of hidden dim')
     parser.add_argument('--dropout', type=float, default=0.0, help='Dropout rate')
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--weight_decay', type=float, default=5e-7)
@@ -99,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument("--split", nargs="+",
                         default=[0.6, 0.2, 0.2], type=float)
     parser.add_argument("--model_type", default="GraphSage", type=str)
-    parser.add_argument('--aug', dest='aug', default=False, action='store_true',
+    parser.add_argument('--aug', dest='aug', default=True, action='store_false',
                         help="Whether use our message passing method.")
     parser.add_argument('--lamda', type=float, default=30,
                         help="The hypereparameter of regularization term.")
