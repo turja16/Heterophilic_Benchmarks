@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 from torch.optim import Adam
 
-import datasets
+from JacobiConv.datasets import load_dataset
 from JacobiConv.impl import PolyConv, models, GDataset, utils
 
 
@@ -149,7 +149,7 @@ def work(output_channels,
 
 def train_alldata_jacobiconv(device: torch.device,
                              args: Union[NamedTuple, argparse.Namespace]):
-    baseG, splits_lst = datasets.load_dataset(args.dataset)
+    baseG, splits_lst = load_dataset(args.dataset)
     baseG.to(device)
     trn_dataset, val_dataset, tst_dataset = None, None, None
     output_channels = baseG.num_targets
