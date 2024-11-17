@@ -11,7 +11,6 @@ from sklearn.metrics import roc_auc_score
 from torch_geometric.utils import remove_self_loops
 from torch_geometric.utils.convert import to_scipy_sparse_matrix
 
-
 from acm import GCN
 from parse import parser_add_main_args
 
@@ -98,6 +97,8 @@ def roc_auc(pr_logits, gt_labels):
 
 
 def train(model,
+          epoch_num,
+          early_stopping,
           optimizer,
           features,
           adj_low,
@@ -112,7 +113,7 @@ def train(model,
     best_metric = 0
     patience = 0
     best_params = None
-    for epoch in range(args.epoch_num):
+    for epoch in range(epoch_num):
         model.train()
         optimizer.zero_grad()
         # output = model(features, adj)
@@ -138,7 +139,7 @@ def train(model,
         else:
             patience += 1
         #
-        if patience >= args.early_stopping:
+        if patience >= early_stopping:
             break
     # test
     model.load_state_dict(best_params)
@@ -225,6 +226,8 @@ def train_pathnetdata_acm(device: torch.device,
             model.parameters(),
             lr=args.lr, weight_decay=args.weight_decay)
         test_metric = train(model,
+                            args.epoch_num,
+                            args.early_stopping,
                             optimizer,
                             features,
                             adj_low,

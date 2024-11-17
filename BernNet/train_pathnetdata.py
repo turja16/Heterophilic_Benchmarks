@@ -87,6 +87,8 @@ def accuracy(pr_logits, gt_labels):
 
 
 def train(model,
+          epoch_num,
+          early_stopping,
           optimizer,
           features,
           edge_index,
@@ -99,7 +101,7 @@ def train(model,
     best_metric = 0
     patience = 0
     best_params = None
-    for epoch in range(args.epoch_num):
+    for epoch in range(epoch_num):
         model.train()
         optimizer.zero_grad()
         output = model(features, edge_index).squeeze(1)
@@ -122,7 +124,7 @@ def train(model,
         else:
             patience += 1
         #
-        if patience >= args.early_stopping:
+        if patience >= early_stopping:
             break
     # test
     model.load_state_dict(best_params)
@@ -195,6 +197,8 @@ def train_pathnetdata(device: torch.device,
             {'params': model.lin2.parameters(), 'weight_decay': args.weight_decay, 'lr': args.lr},
             {'params': model.prop1.parameters(), 'weight_decay': 0.0, 'lr': args.Bern_lr}])
         test_metric = train(model,
+                            args.epoch_num,
+                            args.early_stopping,
                             optimizer,
                             features,
                             edge_index,
