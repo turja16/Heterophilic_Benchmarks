@@ -1,5 +1,6 @@
 import argparse
 import random
+from os import path
 from typing import NamedTuple, Union
 
 import dgl
@@ -12,7 +13,7 @@ from torch_geometric.utils import remove_self_loops
 from FAGCN.FAGCN_models import FAGCN
 from FAGCN.FAGCN_training import train
 
-BASE_DIR = "../PathNet/other_data"
+BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
 
 
 @torch.no_grad()

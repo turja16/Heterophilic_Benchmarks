@@ -72,8 +72,7 @@ def train_criticaldata_gprgnn(device: torch.device,
     Init = args.Init
     Gamma_0 = None
     alpha = args.alpha
-    args.C = num_classes
-    args.Gamma = Gamma_0
+
     for graph_idx in range(args.run):
         # load a split for critical look
         train_mask = npz_data['train_masks'][graph_idx]
@@ -86,7 +85,7 @@ def train_criticaldata_gprgnn(device: torch.device,
         valid_nodes = torch.LongTensor(idx_val)
         test_nodes = torch.LongTensor(idx_test)
         #
-        Net = GPRGNN(num_features, num_classes, args)
+        Net = GPRGNN(num_features, num_classes, Gamma_0, args)
         # train
         test_acc, best_val_acc, Gamma_0, = RunExp(
             args, Net, feat_data_th, edge_index, labels_th, train_nodes, valid_nodes, test_nodes, device,

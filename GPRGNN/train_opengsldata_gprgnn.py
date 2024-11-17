@@ -144,8 +144,7 @@ def train_opengsldata_gprgnn(device: torch.device,
     Init = args.Init
     Gamma_0 = None
     alpha = args.alpha
-    args.C = num_classes
-    args.Gamma = Gamma_0
+
     for graph_idx in range(args.run):
         if args.dataset == 'wiki-cooc':
             train_nodes = train_indices[graph_idx]
@@ -157,7 +156,7 @@ def train_opengsldata_gprgnn(device: torch.device,
                 labels_th, ratio=[60, 20, 20], seed=split_seed)
             split_seed += 1
         #
-        Net = GPRGNN(num_features, num_classes, args).to(device)
+        Net = GPRGNN(num_features, num_classes, Gamma_0, args).to(device)
         # train
         test_acc, best_val_acc, Gamma_0, = RunExp(
             args, Net, feat_data_th, edge_index, labels_th, train_nodes, valid_nodes, test_nodes, device,

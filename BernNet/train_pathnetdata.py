@@ -1,6 +1,7 @@
 import argparse
 import random
 from copy import deepcopy
+from os import path
 from typing import NamedTuple, Union
 
 import numpy as np
@@ -142,7 +143,7 @@ def train(model,
 def train_pathnetdata(device: torch.device,
                       args: Union[NamedTuple, argparse.Namespace]):
     # load pathnet data
-    BASE_DIR = "../PathNet/other_data"
+    BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
     x = np.load(BASE_DIR + '/' + args.dataset + '/x.npy')
     y = np.load(BASE_DIR + '/' + args.dataset + '/y.npy')
     numpy_edge_index = np.load(BASE_DIR + '/' + args.dataset + '/edge_index.npy')

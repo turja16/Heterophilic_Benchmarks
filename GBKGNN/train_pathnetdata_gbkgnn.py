@@ -1,5 +1,6 @@
 import argparse
 from collections import defaultdict as ddt
+from os import path
 from typing import NamedTuple, Union
 
 from torch_geometric.utils import add_remaining_self_loops
@@ -13,7 +14,7 @@ from GBKGNN.utils.statistic import *
 # MODEL_CLASSES = {'DNN': dnn.DNN, 'GraphSage': sage.GraphSage,
 #                  'GIN': gin.GIN, 'GCN2': gcn2.GCN2,
 #                  'GCN': gcn.GCN, 'GAT': gat.GAT, }
-BASE_DIR = "../PathNet/other_data"
+BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
 MODEL_CLASSES = {'GraphSage': sage.GraphSage}
 
 

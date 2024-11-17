@@ -2,6 +2,7 @@ import torch
 from torch_geometric.utils import is_undirected, to_undirected
 import dataset_utils as du
 import os
+from os import path
 import dataset_image
 from torch import Tensor, LongTensor
 import numpy as np
@@ -173,7 +174,7 @@ def load_opengsl(name):
 
 def load_pathnet(name):
     # load pathnet data
-    BASE_DIR = "../PathNet/other_data"
+    BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
     x = np.load(BASE_DIR + '/' + name + '/x.npy')
     y = np.load(BASE_DIR + '/' + name + '/y.npy')
     numpy_edge_index = np.load(BASE_DIR+'/'+ name +'/edge_index.npy')

@@ -14,7 +14,7 @@ from torch_geometric.utils.convert import to_scipy_sparse_matrix
 from acm import GCN
 from parse import parser_add_main_args
 
-BASE_DIR = "../PathNet/other_data"
+BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
 
 
 def normalize_tensor_sparse(mx, symmetric=0):

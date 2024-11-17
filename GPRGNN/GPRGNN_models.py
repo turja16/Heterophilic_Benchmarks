@@ -70,7 +70,7 @@ class GPR_prop(MessagePassing):
 
 
 class GPRGNN(torch.nn.Module):
-    def __init__(self, num_features, num_classes, args):
+    def __init__(self, num_features, num_classes, gamma, args):
         super(GPRGNN, self).__init__()
         self.lin1 = Linear(num_features, args.n_hid)
         self.lin2 = Linear(args.n_hid, num_classes)
@@ -78,7 +78,7 @@ class GPRGNN(torch.nn.Module):
         if args.ppnp == 'PPNP':
             self.prop1 = APPNP(args.K, args.alpha)
         elif args.ppnp == 'GPR_prop':
-            self.prop1 = GPR_prop(args.K, args.alpha, args.Init, args.Gamma)
+            self.prop1 = GPR_prop(args.K, args.alpha, args.Init, gamma)
 
         self.Init = args.Init
         self.dprate = args.dprate

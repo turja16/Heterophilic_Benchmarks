@@ -1,5 +1,6 @@
 import argparse
 import random
+from os import path
 from typing import NamedTuple, Union
 
 import numpy as np
@@ -13,7 +14,7 @@ from FSGCN.FSGCN_models import FSGNN
 from FSGCN.FSGCN_training import run_on_split
 
 # load pathnet data
-BASE_DIR = "../PathNet/other_data"
+BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
 
 
 def normalize_tensor_sparse(mx, symmetric=0):

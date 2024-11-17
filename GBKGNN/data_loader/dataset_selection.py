@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from os import path
 import scipy.sparse as sp
 
 from torch_geometric.data import Data
@@ -143,7 +144,7 @@ def load_opengsl_data(dataname):
 
 def load_pathnet_data(dataname):
     # load pathnet data
-    BASE_DIR = "../PathNet/other_data"
+    BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
     x = np.load(BASE_DIR + '/' + dataname + '/x.npy')
     y = np.load(BASE_DIR + '/' + dataname + '/y.npy')
     numpy_edge_index = np.load(BASE_DIR+'/'+ dataname +'/edge_index.npy')

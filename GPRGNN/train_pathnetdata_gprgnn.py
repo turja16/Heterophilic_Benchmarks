@@ -1,5 +1,6 @@
 import argparse
 import random
+from os import path
 from typing import NamedTuple, Union
 
 import numpy as np
@@ -12,7 +13,7 @@ from torch_geometric.utils import remove_self_loops
 from GPRGNN.GPRGNN_models import GPRGNN
 from GPRGNN.GPRGNN_training import RunExp
 
-BASE_DIR = "../PathNet/other_data"
+BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
 
 
 @torch.no_grad()
@@ -135,15 +136,14 @@ def train_parthnetdata_gprgnn(device: torch.device,
     Init = args.Init
     Gamma_0 = None
     alpha = args.alpha
-    args.C = num_classes
-    args.Gamma = Gamma_0
+
     for graph_idx in range(args.run):
         # generate split
         train_nodes, valid_nodes, test_nodes = random_splits_with_unlabel(
             labels_th, ratio=[60, 20, 20], seed=split_seed)
         split_seed += 1
         #
-        Net = GPRGNN(num_features, num_classes, args)
+        Net = GPRGNN(num_features, num_classes, Gamma_0, args)
         # train
         test_acc, best_val_acc, Gamma_0, = RunExp(
             args, Net, feat_data_th, edge_index, labels_th, train_nodes, valid_nodes, test_nodes, device,
