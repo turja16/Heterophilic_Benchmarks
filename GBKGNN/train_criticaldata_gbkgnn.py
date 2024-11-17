@@ -20,7 +20,6 @@ def train_criticaldata_gbkgnn(device: torch.device,
                              args: Union[NamedTuple, argparse.Namespace]):
     name = f'{args.name.replace("-", "_")}'
     experiment_ans = ddt(lambda: [])
-    args.device = device
     args.dataset_name = name
     model_name = args.model_type
     args.dim_size = args.n_hid
@@ -66,7 +65,7 @@ def train_criticaldata_gbkgnn(device: torch.device,
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         # training
-        test_acc = training(args, model, optimizer)
+        test_acc = training(args, device, model, optimizer)
         acc_list.append(test_acc)
 
     test_mean = np.mean(acc_list)

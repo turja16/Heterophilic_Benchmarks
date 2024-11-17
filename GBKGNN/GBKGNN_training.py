@@ -1,13 +1,14 @@
-from GBKGNN.utils.metric import accuracy, roc_auc, compute_correct_num, compute_sigma_acc
 import torch
-from torch.nn import CrossEntropyLoss
 import torch.nn.functional as F
+from torch.nn import CrossEntropyLoss
+
+from GBKGNN.utils.metric import accuracy, roc_auc, compute_sigma_acc
+
 
 # not for nclass=2
-def train(args, model, optimizer):
+def train(args, device, model, optimizer):
     model.train()
     dataset = args.dataset
-    device = args.device
     if len(dataset['graph'][0].train_mask.shape) != 1:
         train_mask = dataset['graph'][0].train_mask[:, args.split_id]
     else:
@@ -60,13 +61,13 @@ def train(args, model, optimizer):
     loss.backward()
     optimizer.step()
     del sigma, sigma_list
-    #print('loss: {:.4f}'.format(loss.item()))
+    # print('loss: {:.4f}'.format(loss.item()))
     return loss, metric_train
 
-def test(args, model, mask_type="test"):
+
+def test(args, device, model, mask_type="test"):
     model.eval()
     dataset = args.dataset
-    device = args.device
     #
     # choose metric
     if dataset['num_classes'] > 2:
@@ -99,17 +100,18 @@ def test(args, model, mask_type="test"):
         # _, pred = model(data)
     #
     metric_test = metric(out[mask], data.y[mask])
-    #print('{} Accuracy: {:.4f}'.format(mask_type, metric_test))
+    # print('{} Accuracy: {:.4f}'.format(mask_type, metric_test))
     return metric_test
 
+
 #
-def training(args, model, optimizer):
+def training(args, device, model, optimizer):
     best_val_acc = test_acc = 0
     counter: int = args.patience
     for epoch in range(args.epoch_num):
-        loss, train_acc = train(args, model, optimizer)
-        val_acc = test(args, model, mask_type="val")
-        tmp_test_acc = test(args, model, mask_type="test")
+        loss, train_acc = train(args, device, model, optimizer)
+        val_acc = test(args, model, device, mask_type="val")
+        tmp_test_acc = test(args, device, model, mask_type="test")
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             test_acc = tmp_test_acc
@@ -133,4 +135,3 @@ def training(args, model, optimizer):
     print('*' * 10)
     print('Final_test_acc: {:.4f}'.format(test_acc))
     return test_acc
-
