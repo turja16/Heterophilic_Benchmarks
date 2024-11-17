@@ -129,7 +129,7 @@ def load_fb100_dataset(filename):
     A, metadata = load_fb100(filename)
     dataset = NCDataset(filename)
     edge_index = torch.tensor(A.nonzero(), dtype=torch.long)
-    metadata = metadata.astype(np.int)
+    metadata = metadata.astype(np.int64)
     label = metadata[:, 1] - 1  # gender label, -1 means unlabeled
     # make features into one-hot encodings
     feature_vals = np.hstack(
@@ -278,7 +278,7 @@ def load_yelpchi_dataset():
     A = fulldata['homo']
     edge_index = np.array(A.nonzero())
     node_feat = fulldata['features']
-    label = np.array(fulldata['label'], dtype=np.int).flatten()
+    label = np.array(fulldata['label'], dtype=np.int64).flatten()
     num_nodes = node_feat.shape[0]
 
     dataset = NCDataset('YelpChi')
@@ -330,7 +330,7 @@ def load_geom_gcn_dataset(name):
     fulldata = scipy.io.loadmat(f'{DATAPATH}/{name}.mat')
     edge_index = fulldata['edge_index']
     node_feat = fulldata['node_feat']
-    label = np.array(fulldata['label'], dtype=np.int).flatten()
+    label = np.array(fulldata['label'], dtype=np.int64).flatten()
     num_nodes = node_feat.shape[0]
 
     dataset = NCDataset(name)

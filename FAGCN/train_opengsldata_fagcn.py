@@ -166,9 +166,9 @@ def train_opengsldata_fagcn(device: torch.device,
                     args.dropout, args.eps, args.layer_num).to(device)
         optimizer = torch.optim.Adam(net.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         test_acc = train(
-            args, feat_data_th, labels_th,
-            train_nodes, valid_nodes, test_nodes, net, optimizer,
-            loss_fn, metric)  #
+            args, feat_data_th, labels_th, num_targets,
+            train_nodes, valid_nodes, test_nodes, net, optimizer)  #
+
         acc_list.append(test_acc)
 
     test_mean = np.mean(acc_list)

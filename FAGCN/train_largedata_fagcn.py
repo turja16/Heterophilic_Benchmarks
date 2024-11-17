@@ -182,9 +182,8 @@ def train_largedata_fagcn(device: torch.device,
                     args.dropout, args.eps, args.layer_num).to(device)
         optimizer = torch.optim.Adam(net.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         test_acc = train(
-            args, features, labels,
-            idx_train, idx_val, idx_test, net, optimizer,
-            loss_fn, metric)  #
+            args, features, labels, num_targets,
+            idx_train, idx_val, idx_test, net, optimizer)
         acc_list.append(test_acc)
 
     test_mean = np.mean(acc_list)

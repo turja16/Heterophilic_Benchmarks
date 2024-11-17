@@ -37,7 +37,7 @@ def load_twitch(lang):
                 label.append(int(row[2]=="True"))
                 node_ids.append(int(row[5]))
 
-    node_ids = np.array(node_ids, dtype=np.int)
+    node_ids = np.array(node_ids, dtype=np.int64)
     with open(f"{filepath}/musae_{lang}_edges.csv", 'r') as f:
         reader = csv.reader(f)
         next(reader)
