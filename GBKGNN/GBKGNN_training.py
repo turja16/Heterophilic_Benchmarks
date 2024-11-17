@@ -108,7 +108,7 @@ def training(args, dataset, device, model, optimizer, similarity, split_id):
     counter: int = args.patience
     for epoch in range(args.epoch_num):
         loss, train_acc = train(args, dataset, device, model, optimizer, similarity, split_id)
-        val_acc = test(args, dataset, model, device, similarity, split_id, mask_type="val")
+        val_acc = test(args, dataset, device, model, similarity, split_id, mask_type="val")
         tmp_test_acc = test(args, dataset, device, model, similarity, split_id, mask_type="test")
         if val_acc > best_val_acc:
             best_val_acc = val_acc
