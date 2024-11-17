@@ -3,6 +3,7 @@ from collections import defaultdict as ddt
 # MODEL_CLASSES = {'DNN': dnn.DNN, 'GraphSage': sage.GraphSage,
 #                  'GIN': gin.GIN, 'GCN2': gcn2.GCN2,
 #                  'GCN': gcn.GCN, 'GAT': gat.GAT, }
+from os import path
 from typing import NamedTuple, Union
 
 from torch_geometric.utils import add_remaining_self_loops
@@ -24,8 +25,7 @@ def train_criticaldata_gbkgnn(device: torch.device,
     model_name = args.model_type
     args.dim_size = args.n_hid
     args.aug = True  # use gbkgnn message passing method
-
-    npz_data = np.load(f'../critical_look_utils/data/{args.dataset_name}.npz')
+    npz_data = np.load(f'{path.dirname(path.abspath(__file__))}/../critical_look_utils/data/{args.dataset_name}.npz')
     train_mask = torch.from_numpy(npz_data['train_masks'])
     val_mask = torch.from_numpy(npz_data['val_masks'])
     test_mask = torch.from_numpy(npz_data['test_masks'])

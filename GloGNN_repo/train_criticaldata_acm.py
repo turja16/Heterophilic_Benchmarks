@@ -1,6 +1,7 @@
 import argparse
 import sys
 from copy import deepcopy
+from os import path
 from typing import NamedTuple, Union
 
 import networkx as nx
@@ -118,7 +119,7 @@ def train_criticaldata_acm(device: torch.device,
                            args: Union[NamedTuple, argparse.Namespace]):
     dataset_str = f'{args.dataset.replace("-", "_")}'
     # load critical data
-    npz_data = np.load(f'../critical_look_utils/data/{dataset_str}.npz')
+    npz_data = np.load(f'{path.dirname(path.abspath(__file__))}/../critical_look_utils/data/{dataset_str}.npz')
     if 'directed' not in dataset_str:
         edge = np.concatenate((npz_data['edges'], npz_data['edges'][:, ::-1]), axis=0)
     else:
