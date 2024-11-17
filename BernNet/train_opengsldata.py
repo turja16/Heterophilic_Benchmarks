@@ -13,6 +13,8 @@ from torch_geometric.utils import remove_self_loops
 
 from BernNet.models import BernNet
 
+BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
+
 
 def normalize_tensor_sparse(mx, symmetric=0):
     """Row-normalize sparse matrix"""
@@ -142,7 +144,6 @@ def train(model,
 def train_opengsldata(device: torch.device,
                       args: Union[NamedTuple, argparse.Namespace]):
     # load opengsl data
-    BASE_DIR = '../Opengsl'
     if args.dataset == 'wiki-cooc':
         # load
         file_name = f'{args.dataset.replace("-", "_")}.npz'

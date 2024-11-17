@@ -2,6 +2,8 @@ import argparse
 import random
 import sys
 
+from os import path
+
 import numpy as np
 import scipy.sparse as sp
 import torch
@@ -114,8 +116,8 @@ def train_largedata_fsgcn(device: torch.device,
             name = args.dataset
             if sub_dataname != '':
                 name = f'{dataname}-{sub_dataname}'
-            #
-            splits_lst = np.load(f'../splits/{name}-splits.npy', allow_pickle=True)
+            BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../splits"
+            splits_lst = np.load(f'{BASE_DIR}/{name}-splits.npy', allow_pickle=True)
             for i in range(len(splits_lst)):
                 for key in splits_lst[i]:
                     if not torch.is_tensor(splits_lst[i][key]):

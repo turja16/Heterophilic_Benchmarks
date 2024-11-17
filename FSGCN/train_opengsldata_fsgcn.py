@@ -14,7 +14,7 @@ from FSGCN.FSGCN_models import FSGNN
 from FSGCN.FSGCN_training import run_on_split
 
 # load opengsl data
-BASE_DIR = '../Opengsl'
+BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
 
 
 def normalize_tensor_sparse(mx, symmetric=0):

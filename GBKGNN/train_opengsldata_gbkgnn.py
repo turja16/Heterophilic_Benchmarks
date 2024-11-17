@@ -24,7 +24,7 @@ def train_opengsldata_gbkgnn(device: torch.device,
     model_name = args.model_type
 
     if name == 'wiki_cooc':
-        BASE_DIR = '../Opengsl'
+        BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
         file_name = f'{args.dataset_name}.npz'
         data = np.load(os.path.join(BASE_DIR, file_name))
         train_masks = torch.tensor(data['train_masks'])

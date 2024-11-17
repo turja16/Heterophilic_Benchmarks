@@ -103,7 +103,7 @@ def load_geom_data(dataname):
 
 def load_opengsl_data(dataname):
     # load opengsl data
-    BASE_DIR = '../Opengsl'
+    BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
     if dataname == 'wiki_cooc':
         # load
         file_name = f'{dataname.replace("-", "_")}.npz'

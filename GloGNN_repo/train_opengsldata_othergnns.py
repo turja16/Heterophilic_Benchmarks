@@ -15,7 +15,7 @@ from torch_geometric.utils import remove_self_loops
 from helper import NCDataset
 from parse import parse_method, parser_add_main_args
 
-BASE_DIR = '../Opengsl'
+BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
 
 
 def normalize_tensor_sparse(mx, symmetric=0):

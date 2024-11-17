@@ -100,8 +100,9 @@ def load_geom(name):
     if name in ['genius', 'deezer-europe', 'penn94', 'arxiv-year', 'pokec', 'snap-patents', 'twitch-gamer']:
         if sub_dataname != '':
             name = f'{dataname}-{sub_dataname}'
-        #
-        splits_lst = np.load(f'../splits/{name}-splits.npy', allow_pickle=True)
+
+        BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../splits"
+        splits_lst = np.load(f'{BASE_DIR}/{name}-splits.npy', allow_pickle=True)
         for i in range(len(splits_lst)):
             for key in splits_lst[i]:
                 if not torch.is_tensor(splits_lst[i][key]):
@@ -133,7 +134,7 @@ def load_critical(name):
     return features, edge_index, labels, num_targets, splits_lst
 
 def load_opengsl(name):
-    BASE_DIR = '../Opengsl'
+    BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
     if name == 'wiki_cooc':
         # load
         file_name = f'{name.replace("-", "_")}.npz'

@@ -15,7 +15,7 @@ from torch_geometric.utils.convert import to_scipy_sparse_matrix
 from GPRGNN.GPRGNN_models import GPRGNN
 from GPRGNN.GPRGNN_training import RunExp
 
-BASE_DIR = '../Opengsl'
+BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
 
 
 @torch.no_grad()

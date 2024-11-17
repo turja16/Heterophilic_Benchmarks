@@ -14,7 +14,7 @@ from torch_geometric.utils import remove_self_loops
 from FAGCN.FAGCN_models import FAGCN
 from FAGCN.FAGCN_training import train
 
-BASE_DIR = '../Opengsl'
+BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
 
 
 @torch.no_grad()
@@ -202,5 +202,4 @@ if __name__ == "__main__":
     parser.add_argument('--patience', type=int, default=10000, help='Patience')
     args = parser.parse_args()
 
-    BASE_DIR = '../Opengsl'
     device = torch.device("cuda:" + str(args.cuda))
