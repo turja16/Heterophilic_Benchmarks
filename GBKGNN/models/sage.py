@@ -15,10 +15,9 @@ torch.manual_seed(0)
 
 
 class GraphSage(torch.nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, dataset):
         super(GraphSage, self).__init__()
         dim_size = args.dim_size
-        dataset = args.dataset
         self.aug = args.aug
         if args.aug == False:
             self.conv1 = SAGEConv(dataset['num_node_features'], dim_size)

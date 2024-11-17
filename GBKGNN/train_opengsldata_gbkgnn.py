@@ -83,7 +83,7 @@ def train_opengsldata_gbkgnn(device: torch.device,
         dataset["graph"][0].train_mask = train_mask
         dataset["graph"][0].val_mask = val_mask
         dataset["graph"][0].test_mask = test_mask
-        model = MODEL_CLASSES[args.model_type](args).to(device)
+        model = MODEL_CLASSES[args.model_type](args, dataset).to(device)
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         # training

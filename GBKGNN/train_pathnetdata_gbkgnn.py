@@ -75,7 +75,7 @@ def train_pathnetdata_gbkgnn(device: torch.device,
         dataset["graph"][0].test_mask = index_to_mask(n, test_index)
         split_seed += 1
         #
-        model = MODEL_CLASSES[args.model_type](args).to(device)
+        model = MODEL_CLASSES[args.model_type](args, dataset).to(device)
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         # training
