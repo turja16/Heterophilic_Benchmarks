@@ -1,7 +1,8 @@
-import numpy as np
-import random
-import torch
 import argparse
+import random
+
+import numpy as np
+import torch
 
 
 def set_seed(seed: int):
@@ -54,6 +55,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 def train(optimizer, model, ds, loss_fn):
     optimizer.zero_grad()
     model.train()
@@ -62,6 +64,7 @@ def train(optimizer, model, ds, loss_fn):
     loss.backward()
     optimizer.step()
     return loss.item()
+
 
 @torch.no_grad()
 def test(model, ds, metrics, loss_fn=None):

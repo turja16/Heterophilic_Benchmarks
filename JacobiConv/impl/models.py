@@ -1,8 +1,8 @@
+from typing import Iterable
+
 import torch
 import torch.nn as nn
 from torch import Tensor
-from typing import Iterable
-import torch.nn.functional as F
 
 
 class Seq(nn.Module):
@@ -11,6 +11,7 @@ class Seq(nn.Module):
     Args: 
         modlist an iterable of modules to add.
     '''
+
     def __init__(self, modlist: Iterable[nn.Module]):
         super().__init__()
         self.modlist = nn.ModuleList(modlist)
@@ -28,6 +29,7 @@ class TensorMod(nn.Module):
     Args: 
         x: Tensor
     '''
+
     def __init__(self, x: Tensor):
         super().__init__()
         self.x = nn.parameter.Parameter(x, requires_grad=False)
@@ -40,6 +42,7 @@ class ResBlock(nn.Module):
     '''
     A block building residual connection.
     '''
+
     def __init__(self, mod: nn.Module):
         super().__init__()
         self.mod = mod
@@ -56,6 +59,7 @@ class Combination(nn.Module):
         depth (int): number of bases to combine.
         sole (bool): whether or not use the same filter for all output channels.
     '''
+
     def __init__(self, channels: int, depth: int, sole=False):
         super().__init__()
         if sole:
@@ -72,7 +76,6 @@ class Combination(nn.Module):
         return x
 
 
-
 class Gmodel(nn.Module):
     '''
     A framework for GNN models.
@@ -81,6 +84,7 @@ class Gmodel(nn.Module):
         conv (nn.Module): do message passing.
         comb (nn.Module): combine bases to produce the filter function.
     '''
+
     def __init__(self, emb: nn.Module, conv: nn.Module, comb: nn.Module):
         super().__init__()
         self.emb = emb

@@ -1,5 +1,6 @@
 import torch
 
+
 class GDataset:
     '''
     A class to put a splitted dataset.
@@ -8,8 +9,9 @@ class GDataset:
         mask : the mask to show whether a node is in the dataset, of shape (number of nodes) 
         y : the target
     '''
+
     def __init__(self, edge_index, edge_attr, mask, y):
-        self.x = None 
+        self.x = None
         self.edge_index = edge_index
         self.edge_attr = edge_attr
         self.y = y

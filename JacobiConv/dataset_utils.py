@@ -1,14 +1,15 @@
 # copied from https://github.com/ivam-he/BernNet
 # load the real-world dataset from the `"BernNet: Learning Arbitrary Graph Spectral Filters via Bernstein Approximation" paper
-import torch
-import pickle
-import os.path as osp
 import os
+import os.path as osp
+import pickle
+
+import torch
 import torch_geometric.transforms as T
 from torch_geometric.data import InMemoryDataset, download_url, Data
-from torch_geometric.datasets import Planetoid, Amazon, WikipediaNetwork, Actor
-from torch_sparse import coalesce
+from torch_geometric.datasets import Planetoid, Amazon
 from torch_geometric.utils.undirected import to_undirected
+from torch_sparse import coalesce
 
 
 def index_to_mask(index, size):
@@ -219,4 +220,3 @@ def DataLoader(name):
         raise ValueError(f'dataset {name} not supported in dataloader')
 
     return dataset
-    

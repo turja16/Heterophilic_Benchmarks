@@ -1,18 +1,19 @@
-import torch
-from torch_geometric.utils import is_undirected, to_undirected
-import dataset_utils as du
 import os
+import random
+import sys
 from os import path
-import dataset_image
-from torch import Tensor, LongTensor
+
 import numpy as np
 import scipy.sparse as sp
-import sys
-import random
+import torch
+from torch import Tensor, LongTensor
+from torch_geometric.utils import is_undirected, to_undirected
+
 sys.path.append("/home/xsslnc/scratch/hetero_metric_win_ver")
 from large_scale_data_utils.dataset import load_nc_dataset
-from torch_geometric.utils import to_dense_adj, remove_self_loops, dense_to_sparse
+from torch_geometric.utils import remove_self_loops
 from torch_geometric.datasets import AttributedGraphDataset
+
 
 class BaseGraph:
     '''
@@ -23,8 +24,9 @@ class BaseGraph:
             edge_weight (Tensor): of shape (number of edge)
             # mask: a node mask to show a training/valid/test dataset split, of shape (number of node). mask[i]=0, 1, 2 means the i-th node in train, valid, test dataset respectively.
     '''
+
     def __init__(self, x: Tensor, edge_index: LongTensor, edge_weight: Tensor,
-                 y: Tensor, num_targets): #, mask: LongTensor):
+                 y: Tensor, num_targets):  # , mask: LongTensor):
         self.x = x
         self.edge_index = edge_index
         self.edge_attr = edge_weight
@@ -57,6 +59,7 @@ class BaseGraph:
         # self.mask = self.mask.to(device)
         return self
 
+
 def normalize_tensor_sparse(mx, symmetric=0):
     """Row-normalize sparse matrix"""
     rowsum = np.array(mx.sum(1)) + 1e-12
@@ -73,6 +76,7 @@ def normalize_tensor_sparse(mx, symmetric=0):
         r_mat_inv.dot(mx)
         mx = mx.dot(r_mat_inv).transpose().dot(r_mat_inv)
         return mx
+
 
 def load_geom(name):
     if name == 'penn94':
@@ -91,7 +95,8 @@ def load_geom(name):
         labels = labels.squeeze()
     ##
     lbl_set = labels.unique()
-    c = len(lbl_set) - 1 if -1 in lbl_set else len(lbl_set) # penn94 has unlabeled -1, will be excluded using fixed splits
+    c = len(lbl_set) - 1 if -1 in lbl_set else len(
+        lbl_set)  # penn94 has unlabeled -1, will be excluded using fixed splits
     # set number of targets
     num_targets = 1 if name == 'genius' else c
     ##################################
@@ -112,26 +117,28 @@ def load_geom(name):
         splits_lst = []
     return features, edge_index, labels, num_targets, splits_lst
 
+
 def load_critical(name):
-    npz_data = np.load(f'../critical_look_utils/data/{name}.npz',)
-    edges = np.concatenate((npz_data['edges'], npz_data['edges'][:, ::-1]), axis=0) 
+    npz_data = np.load(f'../critical_look_utils/data/{name}.npz', )
+    edges = np.concatenate((npz_data['edges'], npz_data['edges'][:, ::-1]), axis=0)
     features = torch.from_numpy(npz_data['node_features'])
     features = normalize_tensor_sparse(features, symmetric=0)
     features = torch.FloatTensor(features)
-    labels=torch.from_numpy(npz_data['node_labels'])
-    edge_index=torch.from_numpy(edges).T
-    edge_index=remove_self_loops(edge_index)[0]
+    labels = torch.from_numpy(npz_data['node_labels'])
+    edge_index = torch.from_numpy(edges).T
+    edge_index = remove_self_loops(edge_index)[0]
     c = labels.max().item() + 1
     num_targets = 1 if c == 2 else c
     # fixed 10 split
-    train_mask=torch.from_numpy(npz_data['train_masks']) # 10 by *
-    val_mask=torch.from_numpy(npz_data['val_masks'])
-    test_mask=torch.from_numpy(npz_data['test_masks'])
+    train_mask = torch.from_numpy(npz_data['train_masks'])  # 10 by *
+    val_mask = torch.from_numpy(npz_data['val_masks'])
+    test_mask = torch.from_numpy(npz_data['test_masks'])
     # format split
     splits_lst = []
-    for i in range(train_mask.shape[0]): # splits
+    for i in range(train_mask.shape[0]):  # splits
         splits_lst.append({'train': train_mask[i], 'valid': val_mask[i], 'test': test_mask[i]})
     return features, edge_index, labels, num_targets, splits_lst
+
 
 def load_opengsl(name):
     BASE_DIR = f"{os.path.dirname(os.path.abspath(__file__))}/../Opengsl"
@@ -139,8 +146,8 @@ def load_opengsl(name):
         # load
         file_name = f'{name.replace("-", "_")}.npz'
         data = np.load(os.path.join(BASE_DIR, file_name))
-        feats = torch.tensor(data['node_features']) #
-        labels = torch.tensor(data['node_labels']) #
+        feats = torch.tensor(data['node_features'])  #
+        labels = torch.tensor(data['node_labels'])  #
         edges = torch.tensor(data['edges'])
         edge_index = remove_self_loops(edges.T)[0]
         # normalize
@@ -154,31 +161,32 @@ def load_opengsl(name):
         # format split
         splits_lst = []
         for i in range(train_mask.shape[0]):
-            splits_lst.append({'train': train_mask[i], 'valid': val_mask[i], 'test': test_mask[i]})  
-        ##################################    
+            splits_lst.append({'train': train_mask[i], 'valid': val_mask[i], 'test': test_mask[i]})
+            ##################################
     elif name in ['blogcatalog', 'flickr']:
         dataset = AttributedGraphDataset(root=BASE_DIR, name=name)
         g = dataset[0]
         feats = g.x  # unnormalized #
         if name == 'flickr':
             feats = feats.to_dense()
-        labels = g.y #
+        labels = g.y  #
         edge_index = remove_self_loops(g.edge_index)[0]
         # normalize
         features = normalize_tensor_sparse(feats, symmetric=0)
-        features = torch.FloatTensor(features)        
+        features = torch.FloatTensor(features)
         del dataset
         splits_lst = []
     ##################################
     num_targets = len(labels.unique())
     return features, edge_index, labels, num_targets, splits_lst
 
+
 def load_pathnet(name):
     # load pathnet data
     BASE_DIR = f"{path.dirname(path.abspath(__file__))}/../PathNet/other_data"
     x = np.load(BASE_DIR + '/' + name + '/x.npy')
     y = np.load(BASE_DIR + '/' + name + '/y.npy')
-    numpy_edge_index = np.load(BASE_DIR+'/'+ name +'/edge_index.npy')
+    numpy_edge_index = np.load(BASE_DIR + '/' + name + '/edge_index.npy')
     edge_index = torch.from_numpy(numpy_edge_index).to(torch.long)
     edge_index = remove_self_loops(edge_index)[0]
     del numpy_edge_index
@@ -194,6 +202,7 @@ def load_pathnet(name):
     num_targets = len(lbl_set) - 1 if -1 in lbl_set else len(lbl_set)
     splits_lst = []
     return features, edge_index, labels, num_targets, splits_lst
+
 
 def get_order(ratio: list, masked_index: torch.Tensor, total_node_num: int, seed: int = 1234567):
     random.seed(seed)
@@ -224,6 +233,7 @@ def get_order(ratio: list, masked_index: torch.Tensor, total_node_num: int, seed
     assert len(set(val_index) - set(test_index)) == len(set(val_index))
     return (train_index, val_index, test_index)
 
+
 def random_splits_with_unlabel(labels, ratio: list = [60, 20, 20], seed: int = 1234567):
     labels = labels.cpu()
     y_have_label_mask = labels != -1
@@ -234,16 +244,20 @@ def random_splits_with_unlabel(labels, ratio: list = [60, 20, 20], seed: int = 1
         ratio, masked_index, total_node_num, seed)
     return (train_index, val_index, test_index)
 
+
 def index_to_mask(index, size):
     mask = torch.zeros(size, dtype=torch.bool, device=index.device)
     mask[index] = 1
     return mask
 
+
 def load_dataset(name: str):
     # large scale + geom
-    if name in ['deezer-europe', 'genius', 'penn94', 'arxiv-year', 'pokec', 'snap-patents', 'twitch-gamer', 'Cora', 'CiteSeer', 'PubMed', 'chameleon', 'cornell', 'film', 'squirrel', 'texas', 'wisconsin']:
-        features, edge_index, labels, num_targets, splits_lst = load_geom(name)  
-    elif name in ['squirrel_filtered', 'chameleon_filtered', 'roman_empire', 'minesweeper', 'questions', 'amazon_ratings', 'tolokers']:
+    if name in ['deezer-europe', 'genius', 'penn94', 'arxiv-year', 'pokec', 'snap-patents', 'twitch-gamer', 'Cora',
+                'CiteSeer', 'PubMed', 'chameleon', 'cornell', 'film', 'squirrel', 'texas', 'wisconsin']:
+        features, edge_index, labels, num_targets, splits_lst = load_geom(name)
+    elif name in ['squirrel_filtered', 'chameleon_filtered', 'roman_empire', 'minesweeper', 'questions',
+                  'amazon_ratings', 'tolokers']:
         features, edge_index, labels, num_targets, splits_lst = load_critical(name)
     elif name in ['wiki_cooc', 'blogcatalog', 'flickr']:
         features, edge_index, labels, num_targets, splits_lst = load_opengsl(name)
@@ -260,11 +274,11 @@ def load_dataset(name: str):
         num_node = features.shape[0]
         for i in range(10):
             idx_train, idx_val, idx_test = random_splits_with_unlabel(
-                labels, ratio = [60, 20, 20], seed = split_seed)
-            split_seed += 1 
+                labels, ratio=[60, 20, 20], seed=split_seed)
+            split_seed += 1
             splits_lst.append({
                 'train': index_to_mask(idx_train, num_node),
-                'valid': index_to_mask(idx_val, num_node), 
+                'valid': index_to_mask(idx_val, num_node),
                 'test': index_to_mask(idx_test, num_node)})
     #####################################
     ea = torch.ones(edge_index.shape[1])

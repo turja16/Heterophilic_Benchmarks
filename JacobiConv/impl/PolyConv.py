@@ -1,12 +1,11 @@
 import torch
 import torch.nn as nn
-from torch import Tensor
 from scipy.special import comb
+from torch import Tensor
+from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 from torch_geometric.utils import get_laplacian, degree
 from torch_sparse import SparseTensor
-from torch_geometric.nn import MessagePassing
-import torch.nn.functional as F
 
 
 def buildAdj(edge_index: Tensor, edge_weight: Tensor, n_node: int, aggr: str):
@@ -48,6 +47,7 @@ class PolyConvFrame(nn.Module):
         alpha (float):  the parameter to initialize polynomial coefficients.
         fixed (bool): whether or not to fix to polynomial coefficients.
     '''
+
     def __init__(self,
                  conv_fn,
                  depth: int = 3,
@@ -85,6 +85,7 @@ class PolyConvFrame(nn.Module):
         x = torch.cat(xs, dim=1)
         return x
 
+
 '''
 conv_fns to build the polynomial filter.
 Args:
@@ -93,6 +94,7 @@ Args:
     adj (SparseTensor): adjacency matrix
     alphas (List[Float]): List of polynomial coeffcient.
 '''
+
 
 def PowerConv(L, xs, adj, alphas):
     '''
@@ -124,7 +126,6 @@ def ChebyshevConv(L, xs, adj, alphas):
     return nx
 
 
-
 def JacobiConv(L, xs, adj, alphas, a=1.0, b=1.0, l=-1.0, r=1.0):
     '''
     Jacobi Bases. Please refer to our paper for the form of the bases.
@@ -138,7 +139,7 @@ def JacobiConv(L, xs, adj, alphas, a=1.0, b=1.0, l=-1.0, r=1.0):
         return coef1 * xs[-1] + coef2 * (adj @ xs[-1])
     coef_l = 2 * L * (L + a + b) * (2 * L - 2 + a + b)
     coef_lm1_1 = (2 * L + a + b - 1) * (2 * L + a + b) * (2 * L + a + b - 2)
-    coef_lm1_2 = (2 * L + a + b - 1) * (a**2 - b**2)
+    coef_lm1_2 = (2 * L + a + b - 1) * (a ** 2 - b ** 2)
     coef_lm2 = 2 * (L - 1 + a) * (L - 1 + b) * (2 * L + a + b)
     tmp1 = alphas[L - 1] * (coef_lm1_1 / coef_l)
     tmp2 = alphas[L - 1] * (coef_lm1_2 / coef_l)
@@ -158,13 +159,13 @@ class Bern_prop(MessagePassing):
         self.K = K
 
     def forward(self, x, edge_index, edge_weight=None):
-        #L=I-D^(-0.5)AD^(-0.5)
+        # L=I-D^(-0.5)AD^(-0.5)
         edge_index1, norm1 = get_laplacian(edge_index,
                                            edge_weight,
                                            normalization='sym',
                                            dtype=x.dtype,
                                            num_nodes=x.size(0))
-        #2I-L
+        # 2I-L
         edge_index2, norm2 = add_self_loops(edge_index1,
                                             -norm1,
                                             fill_value=2.,
@@ -176,7 +177,7 @@ class Bern_prop(MessagePassing):
             x = self.propagate(edge_index2, x=x, norm=norm2, size=None)
             tmp.append(x)
 
-        out = [(comb(self.K, 0) / (2**self.K)) * tmp[self.K]]
+        out = [(comb(self.K, 0) / (2 ** self.K)) * tmp[self.K]]
 
         for i in range(self.K):
             x = tmp[self.K - i - 1]
@@ -184,8 +185,8 @@ class Bern_prop(MessagePassing):
             for j in range(i):
                 x = self.propagate(edge_index1, x=x, norm=norm1, size=None)
 
-            out.append((comb(self.K, i + 1) / (2**self.K)) * x)
-        return  torch.stack(out, dim=1)
+            out.append((comb(self.K, i + 1) / (2 ** self.K)) * x)
+        return torch.stack(out, dim=1)
 
     def message(self, x_j, norm):
         return norm.view(-1, 1) * x_j

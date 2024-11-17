@@ -10,7 +10,7 @@ from sklearn.metrics import roc_auc_score
 from torch.optim import Adam
 
 import datasets
-from impl import PolyConv, models, GDataset, utils
+from JacobiConv.impl import PolyConv, models, GDataset, utils
 
 
 @torch.no_grad()

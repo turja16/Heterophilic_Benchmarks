@@ -1,15 +1,16 @@
 # copied from https://github.com/ivam-he/BernNet
 # load the image dataset from the `"BernNet: Learning Arbitrary Graph Spectral Filters via Bernstein Approximation" paper
-from torch_geometric.data import InMemoryDataset
-import torch
-from torch_geometric.data.data import Data
-import scipy.io as sio
-import numpy as np
-import matplotlib.pyplot as plt
-from torch_geometric.utils import to_scipy_sparse_matrix
-import os
-from numpy.linalg import eigh
 import math
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.io as sio
+import torch
+from numpy.linalg import eigh
+from torch_geometric.data import InMemoryDataset
+from torch_geometric.data.data import Data
+from torch_geometric.utils import to_scipy_sparse_matrix
 
 filter_type = ['low', 'high', 'band', 'rejection', 'comb', 'low_band']
 
@@ -95,30 +96,30 @@ def filtering(filter_type, dataset):
     D_vec_invsqrt_corr = 1 / np.sqrt(D_vec)
     D_invsqrt_corr = np.diag(D_vec_invsqrt_corr)
     # print(D_invsqrt_corr)
-    L = np.eye(nnodes)-D_invsqrt_corr @ adj @ D_invsqrt_corr
+    L = np.eye(nnodes) - D_invsqrt_corr @ adj @ D_invsqrt_corr
     # print(L)
     eigenvalues, eigenvectors = myeign(L)
     # print(eigenvalues[3])
 
     # low-pass
     if filter_type == 'low':
-        value_tmp = [math.exp(-10*(xxx-0)**2) for xxx in eigenvalues]
+        value_tmp = [math.exp(-10 * (xxx - 0) ** 2) for xxx in eigenvalues]
 
     # high-pass
     elif filter_type == 'high':
-        value_tmp = [1-math.exp(-10*(xxx-0)**2) for xxx in eigenvalues]
+        value_tmp = [1 - math.exp(-10 * (xxx - 0) ** 2) for xxx in eigenvalues]
 
     # band-pass
     elif filter_type == 'band':
-        value_tmp = [math.exp(-10*(xxx-1)**2) for xxx in eigenvalues]
+        value_tmp = [math.exp(-10 * (xxx - 1) ** 2) for xxx in eigenvalues]
 
     # band_rejection
     elif filter_type == 'rejection':
-        value_tmp = [1-math.exp(-10*(xxx-1)**2) for xxx in eigenvalues]
+        value_tmp = [1 - math.exp(-10 * (xxx - 1) ** 2) for xxx in eigenvalues]
 
     # comb
     elif filter_type == 'comb':
-        value_tmp = [abs(np.sin(xxx*math.pi)) for xxx in eigenvalues]
+        value_tmp = [abs(np.sin(xxx * math.pi)) for xxx in eigenvalues]
 
     # low_band
     elif filter_type == 'low_band':
@@ -127,17 +128,17 @@ def filtering(filter_type, dataset):
             if i < 0.5:
                 y.append(1)
             elif i < 1 and i >= 0.5:
-                y.append(math.exp(-100*(i-0.5)**2))
+                y.append(math.exp(-100 * (i - 0.5) ** 2))
             else:
-                y.append(math.exp(-50*(i-1.5)**2))
+                y.append(math.exp(-50 * (i - 1.5) ** 2))
         value_tmp = y
 
     value_tmp = np.array(value_tmp)
     value_tmp = np.diag(value_tmp)
     # print(value_tmp[5000][5000])
 
-    y = eigenvectors@value_tmp@eigenvectors.T@x
-    np.save('y_'+filter_type+'.npy', y)
+    y = eigenvectors @ value_tmp @ eigenvectors.T @ x
+    np.save('y_' + filter_type + '.npy', y)
     return y
 
 
