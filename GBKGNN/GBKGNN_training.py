@@ -6,9 +6,8 @@ from GBKGNN.utils.metric import accuracy, roc_auc, compute_sigma_acc
 
 
 # not for nclass=2
-def train(args, device, model, optimizer):
+def train(args, dataset, device, model, optimizer):
     model.train()
-    dataset = args.dataset
     if len(dataset['graph'][0].train_mask.shape) != 1:
         train_mask = dataset['graph'][0].train_mask[:, args.split_id]
     else:
@@ -65,9 +64,8 @@ def train(args, device, model, optimizer):
     return loss, metric_train
 
 
-def test(args, device, model, mask_type="test"):
+def test(args, dataset, device, model, mask_type="test"):
     model.eval()
-    dataset = args.dataset
     #
     # choose metric
     if dataset['num_classes'] > 2:
@@ -105,13 +103,13 @@ def test(args, device, model, mask_type="test"):
 
 
 #
-def training(args, device, model, optimizer):
+def training(args, dataset, device, model, optimizer):
     best_val_acc = test_acc = 0
     counter: int = args.patience
     for epoch in range(args.epoch_num):
-        loss, train_acc = train(args, device, model, optimizer)
-        val_acc = test(args, model, device, mask_type="val")
-        tmp_test_acc = test(args, device, model, mask_type="test")
+        loss, train_acc = train(args, dataset, device, model, optimizer)
+        val_acc = test(args, dataset, model, device, mask_type="val")
+        tmp_test_acc = test(args, dataset, device, model, mask_type="test")
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             test_acc = tmp_test_acc

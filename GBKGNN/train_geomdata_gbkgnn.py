@@ -20,51 +20,50 @@ MODEL_CLASSES = {'GraphSage': sage.GraphSage}
 def train_geomdata_gbkgnn(device: torch.device,
                           args: Union[NamedTuple, argparse.Namespace]):
     experiment_ans = ddt(lambda: [])
-    args.dataset_name =  f'{args.name.replace("-", "_")}'
+    name = f'{args.dataset_name.replace("-", "_")}'
     model_name = args.model_type
-    args.dim_size = args.n_hid
 
     acc_list = []
     torch.manual_seed(0)
     split_seed = 1234567
     for split_id in range(args.run):
         print('{}/{}'.format(split_id, args.run))
-        args.dataset = data_loaders.DataLoader(args).dataset
+        dataset = data_loaders.DataLoader(args).dataset
         experiment_ans = ddt(lambda: [])
-        experiment_ans["datasetName"].append(args.dataset_name)
-        experiment_ans["nodeNum"].append(args.dataset["num_node"])
-        experiment_ans["edgeNum"].append(args.dataset["num_edge"])
+        experiment_ans["datasetName"].append(name)
+        experiment_ans["nodeNum"].append(dataset["num_node"])
+        experiment_ans["edgeNum"].append(dataset["num_edge"])
         experiment_ans["nodeFeaturesDim"].append(
-            args.dataset["num_node_features"])
+            dataset["num_node_features"])
         experiment_ans["nodeClassification"].append(
-            args.dataset["num_node_classes"])
+            dataset["num_node_classes"])
         experiment_ans["smoothness"].append(
-            compute_smoothness(args.dataset["graph"][0]))
+            compute_smoothness(dataset["graph"][0]))
         #
         if model_name != "GraphSage":
             edge_index, _ = add_remaining_self_loops(
-                args.dataset["graph"][0].edge_index, None, 1, args.dataset["num_node"])
+                dataset["graph"][0].edge_index, None, 1, dataset["num_node"])
         else:
-            edge_index = args.dataset["graph"][0].edge_index
+            edge_index = dataset["graph"][0].edge_index
         #
-        n = args.dataset["num_node"]
-        c = args.dataset['num_classes']
+        n = dataset["num_node"]
+        c = dataset['num_classes']
         # split
         args.similarity = compute_cosine_similarity(
-            args.dataset, edge_index, "label")
+            dataset, edge_index, "label")
         train_index, val_index, test_index = random_splits(
-            args.dataset["graph"][0].y, ratio=[60, 20, 20], seed=split_seed)
+            dataset["graph"][0].y, ratio=[60, 20, 20], seed=split_seed)
         # index to mask
-        args.dataset["graph"][0].train_mask = index_to_mask(n, train_index)
-        args.dataset["graph"][0].val_mask = index_to_mask(n, val_index)
-        args.dataset["graph"][0].test_mask = index_to_mask(n, test_index)
+        dataset["graph"][0].train_mask = index_to_mask(n, train_index)
+        dataset["graph"][0].val_mask = index_to_mask(n, val_index)
+        dataset["graph"][0].test_mask = index_to_mask(n, test_index)
         split_seed += 1
         #
         model = MODEL_CLASSES[args.model_type](args).to(device)
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         # training
-        test_acc = training(args, device, model, optimizer)
+        test_acc = training(args, dataset, device, model, optimizer)
         acc_list.append(test_acc)
 
     test_mean = np.mean(acc_list)
@@ -75,7 +74,7 @@ def train_geomdata_gbkgnn(device: torch.device,
     args.similarity = None
     with open(f"{filename}", 'a+') as write_obj:
         write_obj.write(f"{args.method.lower()}, " +
-                        f"{args.dataset_name}, " +
+                        f"{name}, " +
                         f"{test_mean:.4f}, " +
                         f"{test_std:.4f}, " +
                         f"{args}\n")
