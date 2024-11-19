@@ -20,6 +20,7 @@ def get_args():
     parser.add_argument('--base_dataset', type=str, default=None)
     parser.add_argument('--beta', type=int, default=None)
     parser.add_argument('--gen_id', type=int, default=None)
+    args = parser.parse_args()
     return args
 
 
