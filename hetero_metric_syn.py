@@ -37,7 +37,7 @@ def edge_mixhop_to_edge_list(edge_mixhop):
             adj_indices.append([node, n])
     return np.transpose(adj_indices)
 
-def load_RG(args):
+def load_RG(args, device):
     print('load regular syn graph')
     features = torch.tensor(preprocess_features(
         torch.load(
@@ -52,7 +52,7 @@ def load_RG(args):
     features = features.to(device)
     return adj_tensor, label_long, features
 
-def load_PA(args):
+def load_PA(args, device):
     BASE_DIR = "./mixhop_syn-2000_5/"
     feat = torch.load(os.path.join(BASE_DIR, "ind.n2000-h{}-c5-g{}.allx".format(args.mixhop_h, args.graph_id)))
     label = torch.load(
@@ -75,7 +75,7 @@ def load_PA(args):
     label_long = torch.tensor(label_long, dtype=torch.float32).to(device)
     return adj_tensor, label_long, features
 
-def load_Gencat(args):
+def load_Gencat(args, device):
     BASE_DIR = "./GenCAT_Exp_hetero_homo"
     data = torch.load("{}/GenCAT_{}_{}_{}.pt".format(
         BASE_DIR, args.base_dataset_gencat, args.beta, args.graph_id))
@@ -92,22 +92,20 @@ def load_Gencat(args):
     label_long = torch.tensor(label_long, dtype=torch.float32).to(device)
     return adj_tensor, label_long, features
 
-def load_data(args):
+def load_data(args, device):
     if args.mode == 'PA':
-        adj_tensor, label_long, features = load_PA(args)
+        adj_tensor, label_long, features = load_PA(args, device)
     elif args.mode == 'Gencat':
-        adj_tensor, label_long, features = load_Gencat(args)
+        adj_tensor, label_long, features = load_Gencat(args, device)
     elif args.mode == 'RG':
-        adj_tensor, label_long, features = load_RG(args)
+        adj_tensor, label_long, features = load_RG(args, device)
     else:
         raise ValueError('Invalid mode')
     return adj_tensor, label_long, features
         
-# def compute_metrics_on_syn_graph(device: torch.device,
-#                                  args: Union[NamedTuple, argparse.Namespace]):
 def compute_metrics_on_syn_graph(args, device):
     torch.manual_seed(0)
-    adj_tensor, label_long, features = load_data(args)
+    adj_tensor, label_long, features = load_data(args, device)
     nnodes = adj_tensor.shape[0]
     label_short = label_long.argmax(1)
     num_class = int(label_short.max().item() + 1) # number of class
