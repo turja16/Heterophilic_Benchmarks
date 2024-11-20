@@ -179,9 +179,9 @@ def compte_metrics_on_all_graph_samples_and_save(args, device, num_graph=10, sav
         torch.save(all_results, save_dir)
     return all_results
 
-# if __name__ == "__main__":
-args = get_args()
-# device = torch.device(args.device)
-device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
-# compute a certain metric for 10 graphs of a certain homophily level
-all_results = compte_metrics_on_all_graph_samples_and_save(args, device, num_graph=10, save=True)
+if __name__ == "__main__":
+    args = get_args()
+    # device = torch.device(args.device)
+    device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
+    # compute a certain metric for 10 graphs of a certain homophily level
+    all_results = compte_metrics_on_all_graph_samples_and_save(args, device, num_graph=10, save=True)
