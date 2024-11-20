@@ -29,6 +29,10 @@
 |-- critial_look_baseline # training baseline models on datasets from https://arxiv.org/pdf/2302.11640
 |-- empirical-study-of-GNNs # GenCAT from https://github.com/seijimaekawa/empirical-study-of-GNNs
     |-- scripts/run_gencat_hetero_homo.py # gencat generation for different homophily levels (modified based on scripts/run_gencat.py)
+|-- metrics_results # computed metrics for syn graph
+    |-- summarize.py # generate Gencat.pt, PA.pt, RG.pt, which are summarized results
+    |-- plot.py # plots for metrics vs homophily levels which are saved at ./plots
+
 
 generate_mixhop_data.py # generate synthetic graphs using Preferential Attachment (PA)
 train_syn_baseline.py # training baseline models on the synthetic graphs generated using PA
@@ -37,8 +41,15 @@ train_pathnetdata_baseline.py # training baseline models on ``Bgp"
 train_opengsldata_baseline.py # training baseline models on ``blogcatalog", ``flickr", ``wiki-cooc"
 hetero_metric_real.py # compute heterophily metrics on real-world graphs
 classifer_based_utils.py # helper functions for computing the ``Hypothesis Testing Based Performance Metrics"
-hetero_metric_syn.py # compute heterophily metrics on synthetic graphs and store the results in folder /stat/
+metric_function.py # functions for computing metrics, parts of them are based on https://github.com/SitaoLuan/When-Do-GNNs-Help
+hetero_metric_syn.py # compute heterophily metrics on synthetic graphs
 hetero_metric_plot.py # Figure (e), (f)
 plot_syn_res.py # Figure (b), (c)
 ```
 For the synthetic expirements on the Regular Graph (RG), please follow the instructions [here](https://github.com/SitaoLuan/When-Do-GNNs-Help/tree/main)
+
+The following script computes the metric values for synthetic graphs (```PA```, ```RG``` or ```Gencat```) and saves the results under corresponding folder under ```metrics_results```, e.g. ```RG/edge_0.1.pt``` is the edge homophily values for 10 graphs generated using RG with homophily coefficient 0.1.
+```python
+python hetero_metric_syn.py --mode 'RG' --metric 'edge' --homo_lvl 0.1
+```
+The summarized results for each methods containing all metrics are provided under ```metrics_results```, e.g., ```RG.pt```
