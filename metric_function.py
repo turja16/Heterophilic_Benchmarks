@@ -14,6 +14,13 @@ from sklearn.naive_bayes import GaussianNB
 device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
 pi = math.pi   
 
+def accuracy(labels, output):
+    preds = output.max(1)[1].type_as(labels)
+    correct = preds.eq(labels).double()
+    correct = correct.sum()
+    return correct / len(labels)
+
+
 # preprocess_features from When-Do-GNNs-Help.utils.util_funcs
 def preprocess_features(features):
     """Row-normalize feature matrix and convert to tuple representation"""
@@ -239,36 +246,32 @@ def gntk_homophily_(features, adj, sample, n_layers):
 
 def classifier_based_performance_metric(features, adj, labels, sample_max, rcond=1e-15, base_classifier='kernel_reg1',
                                         epochs=100):
-    if features.device.type != labels.device.type:
-        features = features.to(labels.device) # Ensure features is on the same device as labels
-    
-    if adj.device.type != labels.device.type:
-        adj = adj.to(labels.device) # Ensure adj is on the same device as labels
+    if labels.device != device:
+        labels = labels.to(device)
 
-    
     nnodes = (labels.shape[0])
     if labels.dim() > 1:
         labels = labels.flatten()
+
     G_results, X_results, diff_results, G_good_p_results, X_good_p_results = torch.zeros(epochs), torch.zeros(
         epochs), torch.zeros(epochs), torch.zeros(epochs), torch.zeros(epochs)
     t_time = time.time()
     for j in range(epochs):
-
         if nnodes <= sample_max:
             sample = np.arange(nnodes)
-            label_onehot = torch.eye(labels.max() + 1)[labels].cpu()
-            labels_sample = labels.cpu()
+            label_onehot = torch.eye(labels.max() + 1, device=device)[labels].cpu()
+            labels_sample = labels
         else:
             sample, _, _ = random_disassortative_splits(labels, labels.max() + 1, sample_max / nnodes)
-            label_onehot = torch.eye(labels.max() + 1, device=device)[labels][sample, :].cpu()            
+            label_onehot = torch.eye(labels.max() + 1, device=device)[labels][sample, :].cpu()
             labels_sample = labels[sample]
+        
         idx_train, idx_val, idx_test = random_disassortative_splits(labels_sample, labels_sample.max() + 1)
         idx_val = idx_val + idx_test
-
         # Kernel Regression based p-values
         if base_classifier in {'kernel_reg0', 'kernel_reg1'}:
             nlayers = 0 if base_classifier == 'kernel_reg0' else 1
-            K_graph, K = gntk_homophily_(features, adj, sample, n_layers=nlayers)
+            K_graph, K = gntk_homophily_(features, adj, sample, nlayers)
             K_graph_train_train, K_train_train = K_graph[idx_train, :][:, idx_train], K[idx_train, :][:, idx_train]
             K_graph_val_train, K_val_train = K_graph[idx_val, :][:, idx_train], K[idx_val, :][:, idx_train]
             Kreg_G, Kreg_X = K_graph_val_train.cpu() @ (
@@ -277,28 +280,26 @@ def classifier_based_performance_metric(features, adj, labels, sample_max, rcond
                                      torch.tensor(np.linalg.pinv(K_train_train.cpu().numpy())) @ label_onehot.cpu()[
                                  idx_train.to(label_onehot.device)])
 
-            labels_sample = labels_sample.to(Kreg_G.device) 
-            idx_val = idx_val.to(Kreg_G.device)
-            diff_results[j] = (torch.mean(Kreg_G.argmax(1).eq(labels_sample[idx_val]).float()) > torch.mean(
-                Kreg_X.argmax(1).eq(labels_sample[idx_val]).float()))
-            G_results[j] = torch.mean(Kreg_G.argmax(1).eq(labels_sample[idx_val]).float())
-            X_results[j] = torch.mean(Kreg_X.argmax(1).eq(labels_sample[idx_val]).float())
+            diff_results[j] = (accuracy(labels_sample[idx_val], Kreg_G) > accuracy(labels_sample[idx_val], Kreg_X))
+            G_results[j] = accuracy(labels_sample[idx_val], Kreg_G)
+            X_results[j] = accuracy(labels_sample[idx_val], Kreg_X)
         elif base_classifier == 'gnb':
             #  Gaussian Naive Bayes model
             X = features[sample].cpu()
             X_agg = torch.spmm(adj, features)[sample].cpu()
 
             X_gnb, G_gnb = GaussianNB(), GaussianNB()
-            X_gnb.fit(X[idx_train], labels_sample[idx_train])
-            G_gnb.fit(X_agg[idx_train], labels_sample[idx_train])
+            X_gnb.fit(X[idx_train.cpu()], labels_sample[idx_train].cpu().numpy())
+            G_gnb.fit(X_agg[idx_train.cpu()], labels_sample[idx_train].cpu().numpy())
 
-            X_pred = torch.tensor(X_gnb.predict(X[idx_val]))
-            G_pred = torch.tensor(G_gnb.predict(X_agg[idx_val]))
+            X_pred = torch.tensor(X_gnb.predict(X[idx_val.cpu()]))
+            G_pred = torch.tensor(G_gnb.predict(X_agg[idx_val.cpu()]))
 
-            diff_results[j] = (torch.mean(G_pred.eq(labels_sample[idx_val]).float()) > torch.mean(
-                X_pred.eq(labels_sample[idx_val]).float()))
-            G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val]).float())
-            X_results[j] = torch.mean(X_pred.eq(labels_sample[idx_val]).float())
+            diff_results[j] = (torch.mean(G_pred.eq(labels_sample[idx_val].cpu()).float()) > torch.mean(
+                X_pred.eq(labels_sample[idx_val].cpu()).float()))
+            # G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val]).float())
+            G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val].to(G_pred.device)).float())
+            X_results[j] = torch.mean(X_pred.eq(labels_sample[idx_val].to(G_pred.device)).float())
         else:
             #  SVM based p-values
             X = features[sample].cpu()
@@ -317,8 +318,10 @@ def classifier_based_performance_metric(features, adj, labels, sample_max, rcond
             X_pred = torch.tensor(X_svm.predict(X[idx_val]))
             diff_results[j] = (torch.mean(G_pred.eq(labels_sample[idx_val]).float()) > torch.mean(
                 X_pred.eq(labels_sample[idx_val]).float()))
-            G_results[j] = torch.mean(G_pred.eq(labels_sample[idx_val]).float())
-            X_results[j] = torch.mean(X_pred.eq(labels_sample[idx_val]).float())
+            G_results[j] = torch.mean(G_pred.eq(labels_sample[
+                                                    idx_val]).float())
+            X_results[j] = torch.mean(X_pred.eq(labels_sample[
+                                                    idx_val]).float())
 
     if scipy.__version__ == '1.4.1':
         g_aware_good_stats, g_aware_good_p = ttest_ind(X_results.detach().cpu(), G_results.detach().cpu(), axis=0,
