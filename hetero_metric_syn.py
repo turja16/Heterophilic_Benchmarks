@@ -78,7 +78,7 @@ def load_PA(args, device):
 def load_Gencat(args, device):
     BASE_DIR = "./GenCAT_Exp_hetero_homo"
     data = torch.load("{}/GenCAT_{}_{}_{}.pt".format(
-        BASE_DIR, args.base_dataset_gencat, args.beta, args.graph_id))
+        BASE_DIR, args.base_dataset_gencat, int(args.beta*10), args.graph_id))
     adj = data['adj']
     features = data['feature']
     label = data['labels']
@@ -111,6 +111,10 @@ def compute_metrics_on_syn_graph(args, device):
     num_class = int(label_short.max().item() + 1) # number of class
     sample_max = 500
     result = None
+
+    features = features.to(device)
+    adj_tensor = adj_tensor.to(device)   
+
     # choose the metric
     if args.metric == 'edge':
         # edge homophily
@@ -134,6 +138,8 @@ def compute_metrics_on_syn_graph(args, device):
     elif args.metric == 'ne':
         result = N_ident(adj_tensor.cpu().numpy(), label_short, nnodes, num_class)
     elif args.metric == 'kernel_reg0':
+        labels = torch.argmax(label_long, 1)
+        labels = labels.to(device)
         result = classifier_based_performance_metric(
             features,
             adj_tensor,
@@ -142,6 +148,8 @@ def compute_metrics_on_syn_graph(args, device):
             base_classifier='kernel_reg0',
             epochs=100)   
     elif args.metric == 'kernel_reg1':
+        labels = torch.argmax(label_long, 1)
+        labels = labels.to(device)
         result = classifier_based_performance_metric(
             features,
             adj_tensor,
@@ -150,10 +158,12 @@ def compute_metrics_on_syn_graph(args, device):
             base_classifier='kernel_reg1',
             epochs=100)
     elif args.metric == 'gnb':
+        labels = torch.argmax(label_long, 1)
+        labels = labels.to(device)
         result = classifier_based_performance_metric(
             features,
             adj_tensor,
-            torch.argmax(label_long, 1).cpu(),
+            labels,
             sample_max= sample_max,
             base_classifier='gnb',
             epochs=100)        
