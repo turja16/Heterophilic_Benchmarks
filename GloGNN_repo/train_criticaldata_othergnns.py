@@ -116,8 +116,9 @@ def train_criticaldata_othergnns(device: torch.device,
     #
     labels = npz_data['node_labels']
     features = npz_data['node_features']
-    adj = nx.adj_matrix(nx.from_edgelist(edge))
-    #
+    #adj = nx.adj_matrix(nx.from_edgelist(edge))
+    G = nx.from_edgelist(edge)
+    adj = nx.adjacency_matrix(G)                          
     adj = normalize_tensor_sparse(adj + sp.eye(adj.shape[0]), symmetric=1)
     adj = sparse_mx_to_torch_sparse_tensor(adj)
     features = normalize_tensor_sparse(features, symmetric=0)
