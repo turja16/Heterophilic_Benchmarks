@@ -6,7 +6,8 @@ from collections import defaultdict
 from sklearn.metrics import roc_auc_score, f1_score
 from scipy import sparse as sp
 from torch_sparse import SparseTensor
-from google_drive_downloader import GoogleDriveDownloader as gdd
+#from google_drive_downloader import GoogleDriveDownloader as gdd
+from googledrivedownloader import download_file_from_google_drive
 from os import path as path
 
 DATAPATH = path.dirname(path.abspath(__file__)) + '/large_scale_data/'
